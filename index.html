@@ -332,7 +332,6 @@
         .staff-balance-modal-box button { flex: 1; margin: 0; padding: 12px; font-size: 14px; }
         @media (max-width:600px) {
             body{padding:8px} .container{padding:16px;margin-top:55px;border-radius:20px} h2{font-size:20px;padding-bottom:10px} h3{font-size:17px}
-             
             .radio-box{flex-direction:column;gap:8px} .radio-box label{width:100%;justify-content:flex-start}
             .date-filter-row{flex-direction:column} .date-filter-row .form-group{min-width:100%}
             .flex-group{flex-direction:column} .flex-group > *{width:100%;min-width:100%}
@@ -346,6 +345,16 @@
             .notif-bell{top:10px;right:10px;padding:8px 12px;font-size:12px}
             .apps-grid{grid-template-columns:repeat(auto-fill,minmax(85px,1fr));gap:10px}
             .app-card .app-icon{width:48px;height:48px} .app-card .app-name{font-size:11px}
+            .theme-toggle-btn { top: 10px; left: 10px; width: 40px; height: 40px; font-size: 18px; }
+            .hamburger-menu { top: 10px; right: 10px; width: 40px; height: 40px; }
+            .hamburger-line { width: 20px; }
+            .remember-me-container { padding: 8px 12px; margin: 10px 0; }
+            .remember-me-container label { font-size: 13px; }
+            #loginForm button[type="submit"] { font-size: 16px; padding: 14px; }
+            .container { padding: 14px; margin-top: 50px; }
+            .table-wrapper { margin: 0 -8px; padding: 0 8px; }
+            .delete-confirm-box, .balance-modal-box, .edit-balance-modal-box, .staff-balance-modal-box { padding: 20px; }
+            .section-toggle { padding: 10px 2px; min-height: 40px; }
         }
         @media (max-width:380px) {
             .admin-table{font-size:11px} .admin-table th,.admin-table td{padding:6px 3px}
@@ -353,6 +362,66 @@
             h2{font-size:17px} .container{padding:14px}
             .apps-grid{grid-template-columns:repeat(3,1fr);gap:8px}
             .app-card{padding:10px 6px} .app-card .app-icon{width:40px;height:40px}
+        }
+        /* ====== COLLAPSIBLE SECTIONS ====== */
+        .collapsible-section { 
+            transition: all 0.3s ease; 
+            margin-bottom: 12px;
+        }
+        .section-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            padding: 12px 4px;
+            border-bottom: 2px solid var(--glass-border);
+            margin-bottom: 10px;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            min-height: 44px;
+        }
+        .section-toggle:active {
+            background: rgba(255,26,26,0.05);
+            border-radius: 8px;
+        }
+        .section-toggle:hover .toggle-arrow {
+            color: var(--primary-color);
+        }
+        .toggle-arrow {
+            font-size: 16px;
+            color: var(--primary-color);
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+            margin-right: 4px;
+            display: inline-block;
+            min-width: 20px;
+            text-align: center;
+        }
+        .toggle-arrow.collapsed {
+            transform: rotate(-90deg);
+        }
+        .section-content {
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, padding 0.3s ease;
+            max-height: 8000px;
+            opacity: 1;
+        }
+        .section-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+            margin-bottom: 0;
+        }
+        .section-title { 
+            cursor: pointer; 
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            padding: 8px 0;
+        }
+        .section-title:active {
+            opacity: 0.8;
         }
         /* ====== HAMBURGER MENU ====== */
         .hamburger-menu {
@@ -449,6 +518,9 @@
     </style>
 </head>
 <body>
+<button class="theme-toggle-btn" id="themeToggleBtn" onclick="toggleTheme()" title="تبديل الوضع">🌙</button>
+
+
 
 <div class="particles" id="particles"></div>
 
@@ -651,7 +723,455 @@
         </div>
         <style>
             @keyframes crownGlow { 0%,100%{filter: drop-shadow(0 0 20px rgba(255,215,0,0.5));} 50%{filter: drop-shadow(0 0 40px rgba(255,215,0,0.8));} }
-        </style>
+        
+        /* ====== REMEMBER ME ====== */
+        .remember-me-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 14px 0;
+            padding: 10px 14px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .remember-me-container:hover {
+            border-color: var(--primary-color);
+            background: rgba(255,26,26,0.05);
+        }
+        .remember-me-container input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-color);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .remember-me-container label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 14px;
+            color: var(--text-secondary);
+            transition: color 0.3s ease;
+        }
+        .remember-me-container:hover label {
+            color: var(--text-color);
+        }
+
+        /* ====== THEME TOGGLE ====== */
+        .theme-toggle-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+            box-shadow: 0 4px 15px rgba(255,215,0,0.15);
+            color: var(--accent-gold);
+        }
+        .theme-toggle-btn:hover {
+            transform: scale(1.15) rotate(15deg);
+            box-shadow: 0 0 25px rgba(255,215,0,0.4);
+            border-color: var(--accent-gold);
+            background: rgba(255,215,0,0.15);
+        }
+        .theme-toggle-btn:active {
+            transform: scale(0.95);
+        }
+        @media (max-width:600px) {
+            .theme-toggle-btn { width: 40px; height: 40px; font-size: 18px; top: 10px; left: 10px; }
+        }
+
+        /* ====== LIGHT MODE OVERRIDES ====== */
+        body.light-mode {
+            --bg-color: #f5f5f5;
+            --card-bg: rgba(255,255,255,0.95);
+            --primary-color: #cc0000;
+            --primary-light: #e60000;
+            --primary-dark: #990000;
+            --accent-gold: #b8860b;
+            --accent-blue: #005fa3;
+            --accent-green: #008a3c;
+            --accent-purple: #7b2d8e;
+            --text-color: #1a1a1a;
+            --text-secondary: #555555;
+            --text-muted: #888888;
+            --input-bg: rgba(245,245,245,0.9);
+            --border-color: rgba(204,0,0,0.3);
+            --glass-bg: rgba(0,0,0,0.04);
+            --glass-border: rgba(204,0,0,0.15);
+            --success-color: #008a3c;
+            --warning-color: #cc7a00;
+            --danger-color: #cc0000;
+            --shadow-glow: 0 0 30px rgba(204,0,0,0.1);
+            --shadow-card: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        body.light-mode .container {
+            background: rgba(255,255,255,0.95);
+            border-color: rgba(204,0,0,0.2);
+        }
+        body.light-mode input[type="text"],
+        body.light-mode input[type="password"],
+        body.light-mode input[type="number"],
+        body.light-mode input[type="date"],
+        body.light-mode input[type="url"],
+        body.light-mode select {
+            background: #ffffff;
+            border-color: rgba(204,0,0,0.2);
+            color: #1a1a1a;
+        }
+        body.light-mode .radio-box {
+            background: #ffffff;
+            border-color: rgba(204,0,0,0.2);
+        }
+        body.light-mode .radio-box label {
+            color: #1a1a1a;
+        }
+        body.light-mode .search-result-box {
+            background: rgba(255,255,255,0.9);
+        }
+        body.light-mode .search-result-box .log-table th {
+            background: rgba(204,0,0,0.1);
+        }
+        body.light-mode .search-result-box .log-table td {
+            background: rgba(255,255,255,0.8);
+        }
+        body.light-mode .admin-table th {
+            background: rgba(204,0,0,0.1);
+        }
+        body.light-mode .admin-table td {
+            background: rgba(255,255,255,0.8);
+        }
+        body.light-mode .user-orders-table th {
+            background: rgba(204,0,0,0.1);
+        }
+        body.light-mode .user-orders-table td {
+            background: rgba(255,255,255,0.8);
+        }
+        body.light-mode .txn-table th {
+            background: rgba(204,0,0,0.15);
+        }
+        body.light-mode .txn-table td {
+            background: rgba(255,255,255,0.8);
+        }
+        body.light-mode .excel-box {
+            border-color: var(--primary-color);
+            background: #fff;
+        }
+        body.light-mode .delete-confirm-box,
+        body.light-mode .balance-modal-box,
+        body.light-mode .edit-balance-modal-box,
+        body.light-mode .staff-balance-modal-box,
+        body.light-mode .txn-modal-box {
+            background: #ffffff;
+        }
+        body.light-mode .notifications-panel {
+            background: #ffffff;
+        }
+        body.light-mode .notification-item {
+            background: rgba(0,0,0,0.03);
+        }
+        body.light-mode .login-menu-panel {
+            background: linear-gradient(180deg, #fff5f5 0%, #ffffff 100%);
+        }
+        body.light-mode .login-menu-item:hover {
+            background: rgba(204,0,0,0.05);
+        }
+        body.light-mode .app-card {
+            background: rgba(255,255,255,0.9);
+        }
+        body.light-mode .app-admin-card {
+            background: rgba(123,45,142,0.05);
+        }
+        body.light-mode .telegram-bot-card {
+            background: rgba(0,95,163,0.05);
+        }
+        body.light-mode .add-app-form {
+            background: rgba(123,45,142,0.03);
+        }
+        body.light-mode .add-bot-form {
+            background: rgba(0,95,163,0.03);
+        }
+        body.light-mode .selected-app-info {
+            background: linear-gradient(135deg,rgba(0,138,60,0.08),rgba(0,100,50,0.08));
+        }
+        body.light-mode .insufficient-balance {
+            background: linear-gradient(135deg,rgba(204,0,0,0.08),rgba(150,0,0,0.08));
+        }
+        body.light-mode .staff-balance-box {
+            background: linear-gradient(135deg,rgba(184,134,11,0.08),rgba(150,100,0,0.08));
+        }
+        body.light-mode .login-blocked-msg {
+            background: linear-gradient(135deg,rgba(204,0,0,0.08),rgba(150,0,0,0.08));
+        }
+        body.light-mode .balance-display {
+            background: linear-gradient(135deg,rgba(0,138,60,0.1),rgba(0,100,50,0.1));
+        }
+        body.light-mode .debt-display {
+            background: linear-gradient(135deg,rgba(204,0,0,0.08),rgba(150,0,0,0.08));
+        }
+        body.light-mode .user-request-form {
+            background: rgba(0,0,0,0.03);
+        }
+        body.light-mode .box-light {
+            background: rgba(0,0,0,0.03);
+        }
+        body.light-mode .search-container {
+            background: rgba(0,0,0,0.03);
+        }
+        body.light-mode .remember-me-container {
+            background: rgba(0,0,0,0.03);
+        }
+        body.light-mode .remember-me-container:hover {
+            background: rgba(204,0,0,0.05);
+        }
+        body.light-mode ::-webkit-scrollbar-track {
+            background: #f0f0f0;
+        }
+        body.light-mode .hamburger-menu {
+            background: rgba(255,255,255,0.9);
+        }
+        body.light-mode .hamburger-line {
+            background: var(--primary-color);
+        }
+        body.light-mode .notif-bell {
+            background: rgba(255,255,255,0.9);
+        }
+        body.light-mode .login-menu-close {
+            background: rgba(255,255,255,0.9);
+        }
+        body.light-mode input[type="date"] {
+            color-scheme: light;
+        }
+        body.light-mode .faq-modal {
+            background: #ffffff;
+            border-color: var(--accent-gold);
+        }
+        body.light-mode .faq-question {
+            background: rgba(0,0,0,0.03);
+            border-color: rgba(0,0,0,0.1);
+        }
+        body.light-mode .faq-question:hover {
+            background: rgba(204,0,0,0.05);
+        }
+        body.light-mode .faq-answer {
+            background: rgba(0,0,0,0.02);
+            color: #333;
+        }
+        body.light-mode .faq-bot-btn {
+            background: linear-gradient(135deg, #b8860b, #daa520);
+        }
+
+        /* ====== FAQ BOT ====== */
+        .faq-bot-container {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 9999;
+        }
+        .faq-bot-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-gold), #ffaa00);
+            border: 2px solid var(--accent-gold);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(255,215,0,0.4), 0 0 40px rgba(255,215,0,0.2);
+            transition: all 0.3s ease;
+            animation: faqBounce 2s ease-in-out infinite;
+            position: relative;
+            z-index: 10000;
+        }
+        .faq-bot-btn:hover {
+            transform: scale(1.15) rotate(-10deg);
+            box-shadow: 0 6px 30px rgba(255,215,0,0.6), 0 0 60px rgba(255,215,0,0.3);
+        }
+        .faq-bot-btn:active {
+            transform: scale(0.95);
+        }
+        @keyframes faqBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .faq-bot-btn .bot-label {
+            position: absolute;
+            bottom: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--primary-color);
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 10px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .faq-bot-btn:hover .bot-label {
+            opacity: 1;
+        }
+        .faq-modal {
+            position: fixed;
+            bottom: 90px;
+            left: 20px;
+            width: 360px;
+            max-height: 500px;
+            background: #0f0f0f;
+            border: 2px solid var(--accent-gold);
+            border-radius: 20px;
+            padding: 0;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 30px rgba(255,215,0,0.2);
+            overflow: hidden;
+            animation: faqSlideUp 0.3s ease;
+        }
+        @keyframes faqSlideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .faq-modal.active {
+            display: flex;
+        }
+        .faq-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px;
+            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,170,0,0.1));
+            border-bottom: 1px solid rgba(255,215,0,0.3);
+        }
+        .faq-header h4 {
+            margin: 0;
+            color: var(--accent-gold);
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .faq-close-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,215,0,0.3);
+            color: var(--accent-gold);
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        .faq-close-btn:hover {
+            background: rgba(255,215,0,0.2);
+            transform: rotate(90deg);
+        }
+        .faq-body {
+            padding: 12px 16px 16px;
+            overflow-y: auto;
+            max-height: 400px;
+            -webkit-overflow-scrolling: touch;
+        }
+        .faq-item {
+            margin-bottom: 8px;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .faq-question {
+            width: 100%;
+            padding: 12px 14px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,215,0,0.15);
+            border-radius: 12px;
+            color: var(--text-color);
+            font-size: 13px;
+            font-weight: 600;
+            text-align: right;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin: 0;
+            min-height: 44px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        .faq-question:hover {
+            background: rgba(255,215,0,0.1);
+            border-color: rgba(255,215,0,0.4);
+        }
+        .faq-question .faq-arrow {
+            font-size: 12px;
+            color: var(--accent-gold);
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+        .faq-question.active .faq-arrow {
+            transform: rotate(180deg);
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), padding 0.3s ease, opacity 0.3s ease;
+            padding: 0 14px;
+            opacity: 0;
+            color: var(--text-secondary);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+        .faq-answer.active {
+            max-height: 300px;
+            padding: 10px 14px;
+            opacity: 1;
+            border-bottom: 1px solid rgba(255,215,0,0.1);
+        }
+        .faq-footer {
+            padding: 10px 16px;
+            text-align: center;
+            border-top: 1px solid rgba(255,215,0,0.15);
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+        @media (max-width:600px) {
+            .faq-bot-container { bottom: 15px; left: 15px; }
+            .faq-bot-btn { width: 55px; height: 55px; }
+            .faq-bot-btn span:first-child { font-size: 24px; }
+            .faq-modal { width: calc(100vw - 30px); left: 15px; bottom: 80px; max-height: 65vh; }
+            .faq-body { max-height: calc(65vh - 100px); padding: 10px 12px 12px; }
+            .faq-question { font-size: 12px; padding: 10px 12px; min-height: 40px; }
+            .faq-answer { font-size: 11px; line-height: 1.7; }
+            .faq-answer.active { max-height: 250px; }
+            .faq-header { padding: 12px 14px; }
+            .faq-header h4 { font-size: 13px; }
+        }
+        @media (max-width:380px) {
+            .faq-bot-btn { width: 50px; height: 50px; }
+            .faq-bot-btn span:first-child { font-size: 22px; }
+            .faq-modal { width: calc(100vw - 20px); left: 10px; bottom: 75px; }
+        }
+</style>
 
         <h2 style="font-size: 28px; margin-bottom: 8px; color: var(--primary-color); text-shadow: 0 0 20px rgba(255,26,26,0.5);">وكالة الملوك للشحن</h2>
 
@@ -675,6 +1195,11 @@
                 <label style="text-align: right; font-size: 14px;">الباسورد</label>
                 <input type="password" id="loginPass" required placeholder="الباسورد" style="text-align: right;">
             </div>
+                        <div class="remember-me-container" onclick="document.getElementById('rememberMe').click()">
+                <input type="checkbox" id="rememberMe" style="width:auto; margin:0;" onchange="handleRememberMeChange()">
+                <label for="rememberMe" style="margin:0; cursor:pointer;">تذكرني</label>
+            </div>
+
             <button type="submit" style="background: linear-gradient(135deg, #ff1a1a, #cc0000) !important; font-size: 18px; padding: 16px; margin-top: 10px;">تسجيل الدخول</button>
         </form>
 
@@ -690,6 +1215,115 @@
             <p style="color: var(--primary-color); font-size: 14px; font-weight: 700; font-style: italic; margin-bottom: 5px;">Designed & Developed by Kareem</p>
             <p style="color: var(--text-secondary); font-size: 12px;">تقنية احترافية تدير أعمالك بكفاءة وسرعة وثقة 👑</p>
         </div>
+    
+        <!-- FAQ Bot -->
+<div class="faq-bot-container" id="faqBotContainer">
+    <button class="faq-bot-btn" id="faqBotBtn" onclick="toggleFaqModal(event)" title="المساعد الذكي">
+        <span style="font-size:28px;">🤖</span>
+        <span class="bot-label">المساعد</span>
+    </button>
+    <div class="faq-modal" id="faqModal">
+        <div class="faq-header">
+            <h4><span style="font-size:20px;">🤖</span> المساعد الذكي</h4>
+            <button class="faq-close-btn" onclick="closeFaqModal(event)">✕</button>
+        </div>
+        <div class="faq-body">
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq1', event)">
+                    <span>كيف أقوم بتسجيل الدخول؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq1">
+                    اكتب اسم المستخدم وكلمة المرور الخاصة بك في حقول الإدخال، ثم اضغط على زر "تسجيل الدخول". إذا نسيت بياناتك، تواصل مع الإدارة.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq2', event)">
+                    <span>كيف أطلب شحنة جديدة؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq2">
+                    بعد تسجيل الدخول، اختر البرنامج أو اللعبة من القائمة، ثم أدخل المبلغ المطلوب واضغط "إرسال الطلب". سيتم مراجعة طلبك من قبل الإدارة.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq3', event)">
+                    <span>ما هو الرصيد المتاح وكيف أضيف إليه؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq3">
+                    الرصيد المتاح يظهر في أعلى صفحتك بعد تسجيل الدخول. لإضافة رصيد، تواصل مع الإدارة أو الوكيل المعتمد لديك.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq4', event)">
+                    <span>كيف أتحقق من حالة طلبي؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq4">
+                    جميع طلباتك تظهر في قسم "طلباتي" في بوابتك. الحالات: ⏳ قيد المعالجة، ✅ تم الشحن، ❌ مرفوض.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq5', event)">
+                    <span>ما الفرق بين "لنفسي" و"للغير"؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq5">
+                    "لنفسي" يعني الشحن على نفس الـ ID المسجل. "للغير" يعني الشحن على ID مختلف - اكتب الـ ID المطلوب في الحقل المخصص.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq6', event)">
+                    <span>ماذا أفعل إذا نسيت كلمة المرور؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq6">
+                    إذا نسيت كلمة المرور، تواصل مع الإدارة لإعادة تعيينها. لا يمكن استعادتها تلقائياً لأسباب أمنية.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq7', event)">
+                    <span>ما هي البرامج والألعاب المتاحة للشحن؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq7">
+                    البرامج والألعاب المتاحة تظهر في بوابتك بعد تسجيل الدخول. تتضمن أشهر الألعاب والتطبيقات مثل PUBG Mobile وغيرها.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq8', event)">
+                    <span>كم يستغرق تنفيذ الشحنة؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq8">
+                    عادةً ما تتم معالجة الطلبات خلال دقائق قليلة. في حالات استثنائية قد تستغرق وقت أطول. يمكنك متابعة حالة طلبك في قسم "طلباتي".
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq9', event)">
+                    <span>هل يمكنني إلغاء طلب بعد إرساله؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq9">
+                    لا يمكن إلغاء الطلب بعد إرساله مباشرة. إذا كنت بحاجة للإلغاء، تواصل مع الإدارة فوراً قبل الموافقة على الطلب.
+                </div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-question" onclick="toggleA('faq10', event)">
+                    <span>كيف أتواصل مع الإدارة؟</span>
+                    <span class="faq-arrow">▼</span>
+                </button>
+                <div class="faq-answer" id="faq10">
+                    يمكنك التواصل مع الإدارة عبر قنوات التواصل المتاحة. في حالة وجود مشكلة تقنية، اذكر تفاصيل المشكلة بوضوح.
+                </div>
+            </div>
+        </div>
+        <div class="faq-footer">
+            💡 لم تجد إجابتك؟ تواصل مع الإدارة
+        </div>
+    </div>
+</div>
     </div>
 
     <!-- STAFF LOGIN PAGE -->
@@ -744,8 +1378,12 @@
             <div class="staff-balance-value" id="staffBalanceValue">0.00</div>
             <div class="staff-balance-currency">دولار أمريكي</div>
         </div>
-        <div class="search-container">
-            <label style="color: var(--primary-color); font-weight: bold;">🔍 فحص فوري للمديونيات والحساب:</label>
+        <div class="search-container collapsible-section">
+            <div class="section-toggle" onclick="toggleSection('searchContent', 'searchArrow')" style="border-bottom:1px solid var(--glass-border);margin-bottom:10px;">
+                <label style="color: var(--primary-color); font-weight: bold; margin:0; font-size:14px;">🔍 فحص فوري للمديونيات والحساب</label>
+                <span id="searchArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="searchContent" class="section-content">
             <div class="flex-group">
                 <input type="text" id="searchIdInput" placeholder="اكتب ID الوكيل أو المستخدم">
                 <button type="button" class="btn-blue" style="width: 100px; margin: 0;" onclick="lookupDebtById()">فحص</button>
@@ -755,11 +1393,18 @@
                 <div class="form-group"><label>📅 إلى تاريخ:</label><input type="date" id="searchToDate"></div>
             </div>
             <div id="searchResult" class="search-result-box"></div>
+            </div>
         </div>
         <div class="flex-group" style="margin-bottom: 20px;">
             <button type="button" class="btn-blue" onclick="showAddClientModal('وكيل')">+ إضافة وكيل جديد</button>
             <button type="button" class="btn-blue" onclick="showAddClientModal('مستخدم')">+ إضافة مستخدم جديد</button>
         </div>
+        <div class="collapsible-section">
+            <div class="section-toggle" onclick="toggleSection('shippingFormContent', 'shippingFormArrow')" style="border-bottom:1px solid var(--glass-border);margin-bottom:10px;">
+                <h3 style="margin:0;font-size:14px;">📝 نموذج الشحن</h3>
+                <span id="shippingFormArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="shippingFormContent" class="section-content">
         <form id="shippingForm" onsubmit="handleShippingSubmit(event)">
             <div class="form-group">
                 <label>الفئة المستهدفة</label>
@@ -798,6 +1443,8 @@
             <button type="submit">إرسال وتوثيق سحابي</button>
             <button type="button" class="btn-secondary" onclick="logoutStaff()">تسجيل خروج</button>
         </form>
+        </div>
+        </div>
     </div>
 
     <!-- USER PORTAL -->
@@ -805,7 +1452,13 @@
         <h2>🎯 بوابة المستخدم</h2>
         <div id="userBadge" class="badge user-portal-badge"></div>
 
-        <div class="balance-display">
+                <div id="pendingRequestBanner" class="insufficient-balance" style="display:none; border-color: var(--warning-color); background: linear-gradient(135deg,rgba(255,149,0,0.15),rgba(255,85,0,0.15));">
+            <div class="warning-icon">⏳</div>
+            <div class="warning-text" style="color: var(--warning-color);">لديك طلب شحن قيد المعالجة!</div>
+            <div class="warning-sub">لا يمكنك تقديم طلب جديد حتى يتم معالجة طلبك الحالي. يرجى الانتظار.</div>
+        </div>
+
+<div class="balance-display">
             <div class="balance-icon">💎</div>
             <div class="balance-label">الرصيد المتاح</div>
             <div class="balance-value" id="userBalanceValue">0.00</div>
@@ -818,16 +1471,21 @@
             <div class="debt-currency">دولار أمريكي</div>
         </div>
 
-        <div class="box-light">
-            <div class="section-title">
-                <span class="section-icon">🎮</span>
-                <h3>اختر البرنامج / اللعبة</h3>
+        <div class="box-light collapsible-section">
+            <div class="section-title" onclick="toggleSection('appsContent', 'appsArrow')" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:10px;border-bottom:1px solid var(--glass-border);">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="section-icon" style="font-size:18px;">🎮</span>
+                    <h3 style="margin:0;font-size:15px;">اختر البرنامج / اللعبة</h3>
+                </div>
+                <span id="appsArrow" class="toggle-arrow">▼</span>
             </div>
+            <div id="appsContent" class="section-content">
             <div id="appsGrid" class="apps-grid">
                 <div class="empty-state">
                     <div class="empty-icon">📱</div>
                     <p>جاري تحميل البرامج المتاحة...</p>
                 </div>
+            </div>
             </div>
         </div>
 
@@ -845,8 +1503,12 @@
             <div class="warning-sub">الرصيد المتاح أقل من المبلغ المطلوب. يرجى التواصل مع الإدارة لإضافة رصيد.</div>
         </div>
 
-        <div class="user-request-form">
-            <h4>📤 تقديم طلب شحن جديد</h4>
+        <div class="user-request-form collapsible-section">
+            <div class="section-toggle" onclick="toggleSection('requestFormContent', 'requestFormArrow')">
+                <h4 style="margin:0;font-size:14px;">📤 تقديم طلب شحن جديد</h4>
+                <span id="requestFormArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="requestFormContent" class="section-content">
             <form id="userRequestForm" onsubmit="handleUserRequest(event)">
                 <div class="form-group">
                     <label>الشحن موجه لـ:</label>
@@ -865,14 +1527,41 @@
                 </div>
                 <button type="submit" id="submitRequestBtn">🚀 إرسال الطلب</button>
             </form>
-        </div>
-        <div class="box-light">
-            <div class="section-title">
-                <span class="section-icon">📋</span>
-                <h3>طلباتي</h3>
             </div>
+        </div>
+        <div class="box-light collapsible-section">
+            <div class="section-title" onclick="toggleSection('ordersContent', 'ordersArrow')" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:10px;border-bottom:1px solid var(--glass-border);">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="section-icon" style="font-size:18px;">📋</span>
+                    <h3 style="margin:0;font-size:15px;">طلباتي</h3>
+                </div>
+                <span id="ordersArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="ordersContent" class="section-content">
             <div id="userOrdersContainer">
                 <div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد طلبات حتى الآن</p></div>
+            </div>
+            </div>
+        </div>
+
+        <!-- سجل الدفعات الجزئية -->
+        <div class="box-light collapsible-section" style="border: 1px solid var(--success-color); margin-top: 12px;">
+            <div class="section-title" onclick="toggleSection('paymentsContent', 'paymentsArrow')" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:10px;border-bottom:1px solid rgba(0,204,102,0.3);">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="section-icon" style="font-size:18px;">💵</span>
+                    <h3 style="margin:0;font-size:15px;">سجل الدفعات</h3>
+                </div>
+                <span id="paymentsArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="paymentsContent" class="section-content">
+            <div id="userPaymentsSummary" style="background: linear-gradient(135deg, rgba(0,204,102,0.1), rgba(0,153,77,0.1)); border: 1px solid var(--success-color); border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px; display: none;">
+                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">إجمالي الدفعات المسددة</div>
+                <div style="font-size: 32px; font-weight: 800; color: var(--success-color); text-shadow: 0 0 20px rgba(0,204,102,0.5);" id="userTotalPayments">0.00</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">دولار أمريكي</div>
+            </div>
+            <div id="userPaymentsContainer">
+                <div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد دفعات مسجلة حتى الآن</p></div>
+            </div>
             </div>
         </div>
         <button type="button" class="btn-secondary" onclick="logoutUser()" style="margin-top: 20px;">تسجيل خروج</button>
@@ -882,7 +1571,12 @@
     <div id="adminPanelPage" class="form-page">
         <h2>لوحة السحاب السرية الإدارية</h2>
 
-        <div class="box-light" style="border: 1px solid var(--success-color);">
+        <div class="box-light collapsible-section" style="border: 1px solid var(--success-color); margin-bottom:10px;">
+            <div class="section-toggle" onclick="toggleSection('debtsContent', 'debtsArrow')">
+                <h3 style="margin:0;font-size:14px;">نظام التسوية والمديونيات</h3>
+                <span id="debtsArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="debtsContent" class="section-content">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <h3 style="margin:0;">نظام التسوية والمديونيات</h3>
                 <button class="admin-download-btn" onclick="downloadAllDebts()">📥 تحميل جميع المديونيات (PDF)</button>
@@ -892,20 +1586,31 @@
                 <thead><tr><th>الاسم</th><th>ID</th><th>الفئة</th><th>المديونية</th><th>إجراء</th></tr></thead>
                 <tbody id="adminClientsTableBody"></tbody>
             </table></div>
+            </div>
         </div>
 
-        <div class="box-light" style="border: 1px solid var(--primary-color);">
+        <div class="box-light collapsible-section" style="border: 1px solid var(--primary-color); margin-bottom:10px;">
+            <div class="section-toggle" onclick="toggleSection('sheetsContent', 'sheetsArrow')">
+                <h3 style="font-size: 14px; margin:0;">🔗 إعداد Google Sheets</h3>
+                <span id="sheetsArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="sheetsContent" class="section-content">
             <h3 style="font-size: 15px;">🔗 إعداد ربط وجلب وتحديث Google Sheets</h3>
             <div class="form-group"><label>1. رابط الـ Web App:</label><input type="text" id="scriptUrlInput"></div>
             <div class="form-group"><label>2. رابط الشيت الأساسي:</label><input type="text" id="sheetUrlInput"></div>
             <button type="button" onclick="saveAdminSettings()">حفظ وإقران السحابة بالإكسل</button>
+            </div>
         </div>
 
-        <div class="box-light admin-apps-section">
-            <div class="section-title">
-                <span class="section-icon">🎮</span>
-                <h3>إدارة برامج / ألعاب الشحن</h3>
+        <div class="box-light admin-apps-section collapsible-section" style="margin-bottom:10px;">
+            <div class="section-title" onclick="toggleSection('adminAppsContent', 'adminAppsArrow')" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;margin-bottom:10px;border-bottom:1px solid rgba(155,89,182,0.3);">
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span class="section-icon" style="font-size:18px;">🎮</span>
+                    <h3 style="margin:0;font-size:15px;">إدارة برامج / ألعاب الشحن</h3>
+                </div>
+                <span id="adminAppsArrow" class="toggle-arrow">▼</span>
             </div>
+            <div id="adminAppsContent" class="section-content">
             <div id="adminAppsList"></div>
             <div class="add-app-form">
                 <h4>➕ إضافة برنامج / لعبة جديدة</h4>
@@ -936,6 +1641,11 @@
         </div>
 
         <div class="box-light telegram-bots-section">
+            <div class="section-toggle" onclick="toggleSection('telegramContent', 'telegramArrow')">
+                <h3 style="margin:0;">📱 إدارة بوتات Telegram (متعددة)</h3>
+                <span id="telegramArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="telegramContent" class="section-content">
             <h3>📱 إدارة بوتات Telegram (متعددة)</h3>
             <div id="telegramBotsList"></div>
             <div class="add-bot-form">
@@ -976,16 +1686,27 @@
 
         <div id="excelBox" class="excel-box"><h3 style="color:#000; background:#f4f4f5; padding:10px; font-size:14px; text-align:right;">📊 لوحة مراقبة الحسابات:</h3><iframe id="excelIframe" src=""></iframe></div>
 
-        <div class="box-light" style="border: 2px solid var(--accent-gold); margin-top:20px;">
+        <div class="box-light collapsible-section" style="border: 2px solid var(--accent-gold); margin-top:10px; margin-bottom:10px;">
+            <div class="section-toggle" onclick="toggleSection('sharedBalanceContent', 'sharedBalanceArrow')">
+                <h3 style="color: var(--accent-gold); margin:0;font-size:14px;">💰 الرصيد المشترك للموظفين</h3>
+                <span id="sharedBalanceArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="sharedBalanceContent" class="section-content">
             <h3 style="color: var(--accent-gold);">💰 الرصيد المشترك للموظفين</h3>
             <div style="text-align: center; padding: 15px;">
                 <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">الرصيد المتاح للجميع</div>
                 <div style="font-size: 42px; font-weight: 800; color: var(--accent-gold); text-shadow: 0 0 20px rgba(255,215,0,0.5);" id="adminSharedBalance">0.00</div>
                 <div style="font-size: 16px; color: var(--text-secondary);">دولار أمريكي</div>
             </div>
+            </div>
         </div>
 
-        <div class="box-light" style="margin-top:20px;">
+        <div class="box-light collapsible-section" style="margin-top:10px; margin-bottom:10px;">
+            <div class="section-toggle" onclick="toggleSection('addStaffContent', 'addStaffArrow')">
+                <h3 style="margin:0;font-size:14px;">👔 إضافة موظف جديد</h3>
+                <span id="addStaffArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="addStaffContent" class="section-content">
             <h3>👔 إضافة موظف جديد</h3>
             <form id="addStaffForm" onsubmit="handleCreateStaff(event)">
                 <div class="form-group"><label>اسم الموظف</label><input type="text" id="newStaffUser" required></div>
@@ -994,10 +1715,22 @@
             </form>
         </div>
 
-        <h3 style="color: var(--primary-color); font-size: 16px; margin-top:15px;">الموظفون الحاليون:</h3>
-        <div class="table-wrapper"><table class="admin-table"><thead><tr><th>الموظف</th><th>الباسورد</th><th>الرصيد المشترك</th><th>إجراء</th></tr></thead><tbody id="staffTableBody"></tbody></table></div>
+        <div class="collapsible-section" style="margin-top:15px;">
+            <div class="section-toggle" onclick="toggleSection('staffTableContent', 'staffTableArrow')">
+                <h3 style="color: var(--primary-color); font-size: 16px; margin:0;">الموظفون الحاليون:</h3>
+                <span id="staffTableArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="staffTableContent" class="section-content">
+            <div class="table-wrapper"><table class="admin-table"><thead><tr><th>الموظف</th><th>الباسورد</th><th>الرصيد المشترك</th><th>إجراء</th></tr></thead><tbody id="staffTableBody"></tbody></table></div>
+            </div>
+        </div>
 
-        <div class="box-light" style="margin-top:20px; border: 1px solid var(--warning-color);">
+        <div class="box-light collapsible-section" style="margin-top:10px; margin-bottom:10px; border: 1px solid var(--warning-color);">
+            <div class="section-toggle" onclick="toggleSection('createUserContent', 'createUserArrow')">
+                <h3 style="margin:0;font-size:14px;">👤 إنشاء حساب مستخدم جديد</h3>
+                <span id="createUserArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="createUserContent" class="section-content">
             <h3>👤 إنشاء حساب مستخدم جديد (للبوابة)</h3>
             <form id="addUserAccountForm" onsubmit="handleCreateUserAccount(event)">
                 <div class="form-group"><label>الاسم الكامل</label><input type="text" id="newUserAccName" required placeholder="اسم المستخدم"></div>
@@ -1005,15 +1738,29 @@
                 <div class="form-group"><label>الباسورد</label><input type="text" id="newUserAccPass" required placeholder="باسورد المستخدم"></div>
                 <button type="submit" style="background: linear-gradient(135deg, var(--warning-color), #ff5500) !important; color: #fff;">🚀 إنشاء حساب المستخدم</button>
             </form>
+            </div>
         </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:15px;">
-            <h3 style="color: var(--warning-color); font-size: 16px; margin:0;">حسابات المستخدمين (البوابة):</h3>
-            <button class="btn-danger" style="padding:8px 14px;font-size:12px;width:auto;" onclick="clearAllUserTransactions()">🗑️ تصفير سجل المستخدمين</button>
+        <div class="collapsible-section" style="margin-top:15px;">
+            <div class="section-toggle" onclick="toggleSection('userAccountsContent', 'userAccountsArrow')">
+                <h3 style="color: var(--warning-color); font-size: 16px; margin:0;">حسابات المستخدمين (البوابة):</h3>
+                <span id="userAccountsArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="userAccountsContent" class="section-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
+                <h3 style="color: var(--warning-color); font-size: 16px; margin:0;">حسابات المستخدمين (البوابة):</h3>
+                <button class="btn-danger" style="padding:8px 14px;font-size:12px;width:auto;" onclick="clearAllUserTransactions()">🗑️ تصفير سجل المستخدمين</button>
+            </div>
+            <div class="table-wrapper"><table class="admin-table"><thead><tr><th>الاسم</th><th>ID</th><th>الباسورد</th><th>الرصيد</th><th>المديونية</th><th>إجراء</th></tr></thead><tbody id="userAccountsTableBody"></tbody></table></div>
+            </div>
         </div>
-        <div class="table-wrapper"><table class="admin-table"><thead><tr><th>الاسم</th><th>ID</th><th>الباسورد</th><th>الرصيد</th><th>المديونية</th><th>إجراء</th></tr></thead><tbody id="userAccountsTableBody"></tbody></table></div>
 
-        <div class="box-light" style="border: 1px solid var(--accent-blue); margin-top: 20px;">
+        <div class="box-light collapsible-section" style="border: 1px solid var(--accent-blue); margin-top: 10px; margin-bottom:10px;">
+            <div class="section-toggle" onclick="toggleSection('staffUsageContent', 'staffUsageArrow')">
+                <h3 style="color: var(--accent-blue); margin:0;font-size:14px;">📊 تقرير استخدام الرصيد المشترك</h3>
+                <span id="staffUsageArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="staffUsageContent" class="section-content">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <h3 style="color: var(--accent-blue); margin:0;">📊 تقرير استخدام الرصيد المشترك</h3>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1044,6 +1791,11 @@
             <div id="staffUsageTable"></div>
         
         <div class="box-light" style="border: 1px solid var(--success-color); margin-top: 20px;">
+            <div class="section-toggle" onclick="toggleSection('paymentsReportContent', 'paymentsReportArrow')">
+                <h3 style="color: var(--success-color); margin:0;">💵 تقرير دفعات العملاء (المدفوعات الجزئية)</h3>
+                <span id="paymentsReportArrow" class="toggle-arrow">▼</span>
+            </div>
+            <div id="paymentsReportContent" class="section-content">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <h3 style="color: var(--success-color); margin:0;">💵 تقرير دفعات العملاء (المدفوعات الجزئية)</h3>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1068,6 +1820,7 @@
                 </div>
             </div>
             <div id="allPaymentsTable"></div>
+            </div>
         </div>
 
 </div>
@@ -1153,6 +1906,32 @@
         document.body.appendChild(toast);
         setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 2500);
     }
+    function toggleSection(sectionId, arrowId) {
+        const content = document.getElementById(sectionId);
+        const arrow = document.getElementById(arrowId);
+        if (!content) return;
+
+        // Prevent double-tap zoom on mobile
+        event.preventDefault();
+
+        if (content.classList.contains('collapsed')) {
+            content.classList.remove('collapsed');
+            if (arrow) arrow.classList.remove('collapsed');
+            // Scroll to section if needed on mobile
+            if (window.innerWidth <= 600) {
+                setTimeout(() => {
+                    const rect = content.getBoundingClientRect();
+                    if (rect.top < 0 || rect.bottom > window.innerHeight) {
+                        content.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                }, 100);
+            }
+        } else {
+            content.classList.add('collapsed');
+            if (arrow) arrow.classList.add('collapsed');
+        }
+    }
+
 
     function setLoginType(type) {
         // Deprecated - now using separate login pages
@@ -1867,41 +2646,62 @@
     }
 
     // ==================== USER REQUEST ====================
+    function hasPendingRequest() {
+        return new Promise((resolve) => {
+            if (!currentLoggedUser) { resolve(false); return; }
+            db.ref('user_requests').orderByChild('userKey').equalTo(currentLoggedUser._key).once('value')
+            .then(snapshot => {
+                let hasPending = false;
+                snapshot.forEach(child => {
+                    const req = child.val();
+                    if (req.status === 'pending') hasPending = true;
+                });
+                resolve(hasPending);
+            }).catch(() => resolve(false));
+        });
+    }
+
     function handleUserRequest(event) {
         event.preventDefault();
         if(!currentLoggedUser) { alert("خطأ: لم يتم تسجيل الدخول!"); return; }
         if (!selectedApp) { alert("❌ يرجى اختيار البرنامج / اللعبة أولاً!"); return; }
-        const chargeDest = document.querySelector('input[name="userChargeDest"]:checked').value;
-        const amount = parseFloat(document.getElementById('userChargeAmount').value);
-        if (!amount || amount <= 0) { alert("❌ يرجى إدخال مبلغ صحيح!"); return; }
-        let targetId = currentLoggedUser.id;
-        if(chargeDest === 'other') {
-            targetId = document.getElementById('userOtherTargetId').value.trim();
-            if(!targetId) { alert("يرجى كتابة الـ ID المراد الشحن له!"); return; }
-        }
-        const now = new Date();
-        const formattedTime = now.toLocaleDateString('en-US') + ', ' + now.toLocaleTimeString('en-US');
-        const requestData = { 
-            userName: currentLoggedUser.name, userId: currentLoggedUser.id, userKey: currentLoggedUser._key, 
-            amount: amount, destination: chargeDest, targetId: targetId, 
-            appKey: selectedApp._key, appName: selectedApp.name,
-            time: formattedTime, status: 'pending', staff: '' 
-        };
-        db.ref('user_requests').push().set(requestData).then(() => {
-            showToast('✅ تم إرسال طلب الشحن بنجاح!\nفي انتظار موافقة الإدارة.');
-            document.getElementById('userRequestForm').reset();
-            toggleUserDestField();
-            selectedApp = null;
-            renderAppsGrid();
-            const infoDiv = document.getElementById('selectedAppInfo');
-            if (infoDiv) infoDiv.classList.remove('active');
-            const warningDiv = document.getElementById('insufficientBalance');
-            if (warningDiv) warningDiv.classList.remove('active');
-            const submitBtn = document.getElementById('submitRequestBtn');
-            if (submitBtn) { submitBtn.disabled = false; submitBtn.style.opacity = '1'; submitBtn.style.cursor = 'pointer'; }
-            loadUserOrders();
-            notifyNewRequest(requestData);
-        }).catch(err => { alert('❌ خطأ في الإرسال: ' + err.message); });
+        hasPendingRequest().then(hasPending => {
+            if (hasPending) {
+                alert("⚠️ لديك طلب شحن قيد المعالجة!\n\nلا يمكنك تقديم طلب جديد حتى يتم معالجة طلبك الحالي (موافقة أو رفض).\n\nيرجى الانتظار أو التواصل مع الإدارة.");
+                return;
+            }
+            const chargeDest = document.querySelector('input[name="userChargeDest"]:checked').value;
+            const amount = parseFloat(document.getElementById('userChargeAmount').value);
+            if (!amount || amount <= 0) { alert("❌ يرجى إدخال مبلغ صحيح!"); return; }
+            let targetId = currentLoggedUser.id;
+            if(chargeDest === 'other') {
+                targetId = document.getElementById('userOtherTargetId').value.trim();
+                if(!targetId) { alert("يرجى كتابة الـ ID المراد الشحن له!"); return; }
+            }
+            const now = new Date();
+            const formattedTime = now.toLocaleDateString('en-US') + ', ' + now.toLocaleTimeString('en-US');
+            const requestData = { 
+                userName: currentLoggedUser.name, userId: currentLoggedUser.id, userKey: currentLoggedUser._key, 
+                amount: amount, destination: chargeDest, targetId: targetId, 
+                appKey: selectedApp._key, appName: selectedApp.name,
+                time: formattedTime, status: 'pending', staff: '' 
+            };
+            db.ref('user_requests').push().set(requestData).then(() => {
+                showToast('✅ تم إرسال طلب الشحن بنجاح!\nفي انتظار موافقة الإدارة.');
+                document.getElementById('userRequestForm').reset();
+                toggleUserDestField();
+                selectedApp = null;
+                renderAppsGrid();
+                const infoDiv = document.getElementById('selectedAppInfo');
+                if (infoDiv) infoDiv.classList.remove('active');
+                const warningDiv = document.getElementById('insufficientBalance');
+                if (warningDiv) warningDiv.classList.remove('active');
+                const submitBtn = document.getElementById('submitRequestBtn');
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.style.opacity = '1'; submitBtn.style.cursor = 'pointer'; }
+                loadUserOrders();
+                notifyNewRequest(requestData);
+            }).catch(err => { alert('❌ خطأ في الإرسال: ' + err.message); });
+        });
     }
 
     function approveUserRequest(requestKey) {
@@ -2001,6 +2801,25 @@
             document.getElementById('userDebtValue').innerText = (currentLoggedUser.debt || 0).toFixed(2);
             document.getElementById('userSelfIdDisplay').innerText = currentLoggedUser.id;
             loadUserOrders();
+            loadUserPayments();
+            // Check for pending requests and update UI
+            return hasPendingRequest();
+        }).then(hasPending => {
+            const banner = document.getElementById('pendingRequestBanner');
+            const form = document.getElementById('userRequestForm');
+            const submitBtn = document.getElementById('submitRequestBtn');
+            if (banner) banner.style.display = hasPending ? 'block' : 'none';
+            if (form) {
+                const formInputs = form.querySelectorAll('input, select, button');
+                formInputs.forEach(el => { el.disabled = hasPending; });
+            }
+            if (submitBtn) {
+                submitBtn.disabled = hasPending;
+                submitBtn.style.opacity = hasPending ? '0.5' : '1';
+                submitBtn.style.cursor = hasPending ? 'not-allowed' : 'pointer';
+                if (hasPending) submitBtn.innerText = '⏳ لديك طلب قيد المعالجة';
+                else submitBtn.innerText = '🚀 إرسال الطلب';
+            }
         });
     }
 
@@ -2035,6 +2854,56 @@
         });
     }
 
+    function loadUserPayments() {
+        if(!currentLoggedUser) return;
+        const container = document.getElementById('userPaymentsContainer');
+        const summaryDiv = document.getElementById('userPaymentsSummary');
+        const totalEl = document.getElementById('userTotalPayments');
+
+        // Find the client key for this user
+        const client = clientsDatabase.find(c => c.id === currentLoggedUser.id);
+        if (!client || !client._key) {
+            container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد دفعات مسجلة حتى الآن</p></div>';
+            if (summaryDiv) summaryDiv.style.display = 'none';
+            return;
+        }
+
+        db.ref('client_payments/' + client._key).once('value').then(snapshot => {
+            let payments = [];
+            snapshot.forEach(child => { let p = child.val(); p._key = child.key; payments.push(p); });
+            payments.sort((a, b) => { const da = parseLogDate(a.date) || new Date(0); const db2 = parseLogDate(b.date) || new Date(0); return db2 - da; });
+
+            let totalPaid = 0;
+            payments.forEach(p => totalPaid += (p.amount || 0));
+
+            if (totalEl) totalEl.innerText = totalPaid.toFixed(2);
+            if (summaryDiv) summaryDiv.style.display = totalPaid > 0 ? 'block' : 'none';
+
+            if(payments.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد دفعات مسجلة حتى الآن</p></div>';
+                return;
+            }
+
+            let html = '<table class="user-orders-table">';
+            html += '<thead><tr><th>#</th><th>المبلغ</th><th>المديونية قبل</th><th>المديونية بعد</th><th>الملاحظة</th><th>التاريخ</th></tr></thead><tbody>';
+            payments.forEach((p, i) => {
+                html += '<tr>';
+                html += '<td>' + (i + 1) + '</td>';
+                html += '<td style="color:var(--success-color);font-weight:bold;">' + (p.amount || 0).toFixed(2) + ' $</td>';
+                html += '<td>' + (p.previousDebt || 0).toFixed(2) + ' $</td>';
+                html += '<td>' + (p.newDebt || 0).toFixed(2) + ' $</td>';
+                html += '<td>' + (p.note || '—') + '</td>';
+                html += '<td>' + (p.date || '') + '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }).catch(err => {
+            console.error('Error loading user payments:', err);
+            container.innerHTML = '<div class="empty-state"><div class="empty-icon">❌</div><p>خطأ في تحميل البيانات</p></div>';
+        });
+    }
+
     function toggleUserDestField() {
         const dest = document.querySelector('input[name="userChargeDest"]:checked').value;
         document.getElementById('userOtherIdGroup').style.display = dest === 'other' ? 'block' : 'none';
@@ -2065,8 +2934,36 @@
 
     function deleteUserAccount(key, name) {
         if(confirm("هل أنت متأكد من حذف حساب المستخدم: " + name + "؟")) {
-            db.ref('user_accounts/' + key).remove();
-            alert("تم حذف الحساب!");
+            // Find the client with matching ID to delete payments too
+            const userAcc = userAccounts.find(u => u._key === key);
+            const client = userAcc ? clientsDatabase.find(c => c.id === userAcc.id) : null;
+            const promises = [];
+
+            // Delete user transactions
+            promises.push(db.ref('user_transactions/' + key).remove());
+
+            // Delete user requests
+            promises.push(
+                db.ref('user_requests').orderByChild('userKey').equalTo(key).once('value').then(reqSnap => {
+                    const reqPromises = [];
+                    reqSnap.forEach(child => { reqPromises.push(db.ref('user_requests/' + child.key).remove()); });
+                    return Promise.all(reqPromises);
+                })
+            );
+
+            // Delete client payments if client exists
+            if (client && client._key) {
+                promises.push(db.ref('client_payments/' + client._key).remove());
+            }
+
+            // Delete user account
+            promises.push(db.ref('user_accounts/' + key).remove());
+
+            Promise.all(promises).then(() => {
+                showToast("✅ تم حذف الحساب وسجله نهائياً!");
+            }).catch(err => {
+                alert("❌ خطأ: " + err.message);
+            });
         }
     }
 
@@ -2075,13 +2972,20 @@
         event.preventDefault();
         const user = document.getElementById('loginUser').value.trim();
         const pass = document.getElementById('loginPass').value.trim();
+        const rememberMe = document.getElementById('rememberMe');
         document.getElementById('loginBlockedMsg').classList.remove('active');
         const match = userAccounts.find(u => u.name === user && u.password === pass);
         if(match) {
+            // Save credentials if Remember Me is checked
+            if (rememberMe && rememberMe.checked) {
+                localStorage.setItem('savedUser', user);
+                localStorage.setItem('savedPass', pass);
+            }
             currentLoggedUser = match;
             document.getElementById('loginPage').classList.remove('active');
             document.getElementById('userPortalPage').classList.add('active');
             updateUserPortalUI();
+            setupUserRequestListener();
         } else { alert("بيانات خاطئة!"); }
     }
 
@@ -2166,13 +3070,19 @@
 
     function settleDebt(key, name) {
         if(confirm("تصفير مديونية " + name + "؟")) {
-            db.ref('clients/' + key).update({debt: 0, totalOrders: 0});
-            const client = clientsDatabase.find(c => c._key === key);
-            if (client) {
-                const userAcc = userAccounts.find(u => u.id === client.id);
-                if (userAcc) { db.ref('user_accounts/' + userAcc._key).update({debt: 0}); }
-            }
-            alert("تم التصفير!");
+            // حذف سجل الدفعات أولاً
+            db.ref('client_payments/' + key).remove().then(() => {
+                return db.ref('clients/' + key).update({debt: 0, totalOrders: 0});
+            }).then(() => {
+                const client = clientsDatabase.find(c => c._key === key);
+                if (client) {
+                    const userAcc = userAccounts.find(u => u.id === client.id);
+                    if (userAcc) { db.ref('user_accounts/' + userAcc._key).update({debt: 0}); }
+                }
+                showToast("✅ تم التصفير وحذف سجل الدفعات!");
+            }).catch(err => {
+                alert("❌ خطأ: " + err.message);
+            });
         }
     }
 
@@ -3193,6 +4103,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        initTheme();
+        fillSavedLogin();
         const overlay = document.getElementById('deleteConfirmOverlay');
         if (overlay) overlay.addEventListener('click', function(e) { if (e.target === this) cancelDelete(); });
         const balanceOverlay = document.getElementById('balanceModalOverlay');
@@ -3210,6 +4122,115 @@
         const partialPaymentOverlay = document.getElementById('partialPaymentModalOverlay');
         if (partialPaymentOverlay) partialPaymentOverlay.addEventListener('click', function(e) { if (e.target === this) closePartialPaymentModal(); });
     });
+
+    // ==================== THEME TOGGLE ====================
+    function initTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'light') {
+            document.body.classList.add('light-mode');
+        }
+        updateThemeIcon();
+    }
+
+    function toggleTheme() {
+        const isLight = document.body.classList.contains('light-mode');
+        if (isLight) {
+            document.body.classList.remove('light-mode');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.body.classList.add('light-mode');
+            localStorage.setItem('theme', 'light');
+        }
+        updateThemeIcon();
+    }
+
+    function updateThemeIcon() {
+        const btn = document.getElementById('themeToggleBtn');
+        if (!btn) return;
+        const isLight = document.body.classList.contains('light-mode');
+        btn.innerText = isLight ? '☀️' : '🌙';
+        btn.title = isLight ? 'الوضع الفاتح - اضغط للتبديل' : 'الوضع الداكن - اضغط للتبديل';
+    }
+
+    // ==================== REMEMBER ME ====================
+    function handleRememberMeChange() {
+        const checkbox = document.getElementById('rememberMe');
+        if (!checkbox.checked) {
+            localStorage.removeItem('savedUser');
+            localStorage.removeItem('savedPass');
+        }
+    }
+
+    function fillSavedLogin() {
+        const savedUser = localStorage.getItem('savedUser');
+        const savedPass = localStorage.getItem('savedPass');
+        const userInput = document.getElementById('loginUser');
+        const passInput = document.getElementById('loginPass');
+        const rememberCheckbox = document.getElementById('rememberMe');
+        if (savedUser && savedPass && userInput && passInput) {
+            userInput.value = savedUser;
+            passInput.value = savedPass;
+            if (rememberCheckbox) rememberCheckbox.checked = true;
+        }
+    }
+
+    // ==================== FAQ BOT ====================
+    function toggleFaqModal(event) {
+        if (event) event.stopPropagation();
+        const modal = document.getElementById('faqModal');
+        if (!modal) return;
+        modal.classList.toggle('active');
+    }
+
+    function closeFaqModal(event) {
+        if (event) event.stopPropagation();
+        const modal = document.getElementById('faqModal');
+        if (modal) modal.classList.remove('active');
+    }
+
+    function toggleA(id, event) {
+        if (event) event.stopPropagation();
+        const answer = document.getElementById(id);
+        const allAnswers = document.querySelectorAll('.faq-answer');
+        const allQuestions = document.querySelectorAll('.faq-question');
+
+        allAnswers.forEach(a => {
+            if (a.id !== id) a.classList.remove('active');
+        });
+        allQuestions.forEach(q => {
+            const qOnclick = q.getAttribute('onclick') || '';
+            if (!qOnclick.includes("'" + id + "'")) q.classList.remove('active');
+        });
+
+        if (answer) {
+            const isActive = answer.classList.contains('active');
+            if (isActive) {
+                answer.classList.remove('active');
+                const question = answer.previousElementSibling;
+                if (question) question.classList.remove('active');
+            } else {
+                answer.classList.add('active');
+                const question = answer.previousElementSibling;
+                if (question) question.classList.add('active');
+            }
+        }
+    }
+
+    // Close FAQ modal when clicking outside
+    document.addEventListener('click', function(e) {
+        const modal = document.getElementById('faqModal');
+        const btn = document.getElementById('faqBotBtn');
+        const container = document.getElementById('faqBotContainer');
+        if (!modal) return;
+        if (modal.classList.contains('active') && 
+            !modal.contains(e.target) && 
+            !(btn && btn.contains(e.target)) &&
+            !(container && container.contains(e.target))) {
+            modal.classList.remove('active');
+        }
+    });
+
 </script>
+
 </body>
 </html>
