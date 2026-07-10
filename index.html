@@ -881,6 +881,22 @@
                 <div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد طلبات حتى الآن</p></div>
             </div>
         </div>
+
+        <!-- سجل الدفعات الجزئية -->
+        <div class="box-light" style="border: 1px solid var(--success-color); margin-top: 20px;">
+            <div class="section-title">
+                <span class="section-icon">💵</span>
+                <h3>سجل الدفعات</h3>
+            </div>
+            <div id="userPaymentsSummary" style="background: linear-gradient(135deg, rgba(0,204,102,0.1), rgba(0,153,77,0.1)); border: 1px solid var(--success-color); border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 16px; display: none;">
+                <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">إجمالي الدفعات المسددة</div>
+                <div style="font-size: 32px; font-weight: 800; color: var(--success-color); text-shadow: 0 0 20px rgba(0,204,102,0.5);" id="userTotalPayments">0.00</div>
+                <div style="font-size: 14px; color: var(--text-secondary);">دولار أمريكي</div>
+            </div>
+            <div id="userPaymentsContainer">
+                <div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد دفعات مسجلة حتى الآن</p></div>
+            </div>
+        </div>
         <button type="button" class="btn-secondary" onclick="logoutUser()" style="margin-top: 20px;">تسجيل خروج</button>
     </div>
 
@@ -2028,6 +2044,7 @@
             document.getElementById('userDebtValue').innerText = (currentLoggedUser.debt || 0).toFixed(2);
             document.getElementById('userSelfIdDisplay').innerText = currentLoggedUser.id;
             loadUserOrders();
+            loadUserPayments();
             // Check for pending requests and update UI
             return hasPendingRequest();
         }).then(hasPending => {
@@ -2080,6 +2097,56 @@
         });
     }
 
+    function loadUserPayments() {
+        if(!currentLoggedUser) return;
+        const container = document.getElementById('userPaymentsContainer');
+        const summaryDiv = document.getElementById('userPaymentsSummary');
+        const totalEl = document.getElementById('userTotalPayments');
+
+        // Find the client key for this user
+        const client = clientsDatabase.find(c => c.id === currentLoggedUser.id);
+        if (!client || !client._key) {
+            container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد دفعات مسجلة حتى الآن</p></div>';
+            if (summaryDiv) summaryDiv.style.display = 'none';
+            return;
+        }
+
+        db.ref('client_payments/' + client._key).once('value').then(snapshot => {
+            let payments = [];
+            snapshot.forEach(child => { let p = child.val(); p._key = child.key; payments.push(p); });
+            payments.sort((a, b) => { const da = parseLogDate(a.date) || new Date(0); const db2 = parseLogDate(b.date) || new Date(0); return db2 - da; });
+
+            let totalPaid = 0;
+            payments.forEach(p => totalPaid += (p.amount || 0));
+
+            if (totalEl) totalEl.innerText = totalPaid.toFixed(2);
+            if (summaryDiv) summaryDiv.style.display = totalPaid > 0 ? 'block' : 'none';
+
+            if(payments.length === 0) {
+                container.innerHTML = '<div class="empty-state"><div class="empty-icon">📭</div><p>لا توجد دفعات مسجلة حتى الآن</p></div>';
+                return;
+            }
+
+            let html = '<table class="user-orders-table">';
+            html += '<thead><tr><th>#</th><th>المبلغ</th><th>المديونية قبل</th><th>المديونية بعد</th><th>الملاحظة</th><th>التاريخ</th></tr></thead><tbody>';
+            payments.forEach((p, i) => {
+                html += '<tr>';
+                html += '<td>' + (i + 1) + '</td>';
+                html += '<td style="color:var(--success-color);font-weight:bold;">' + (p.amount || 0).toFixed(2) + ' $</td>';
+                html += '<td>' + (p.previousDebt || 0).toFixed(2) + ' $</td>';
+                html += '<td>' + (p.newDebt || 0).toFixed(2) + ' $</td>';
+                html += '<td>' + (p.note || '—') + '</td>';
+                html += '<td>' + (p.date || '') + '</td>';
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }).catch(err => {
+            console.error('Error loading user payments:', err);
+            container.innerHTML = '<div class="empty-state"><div class="empty-icon">❌</div><p>خطأ في تحميل البيانات</p></div>';
+        });
+    }
+
     function toggleUserDestField() {
         const dest = document.querySelector('input[name="userChargeDest"]:checked').value;
         document.getElementById('userOtherIdGroup').style.display = dest === 'other' ? 'block' : 'none';
@@ -2110,8 +2177,36 @@
 
     function deleteUserAccount(key, name) {
         if(confirm("هل أنت متأكد من حذف حساب المستخدم: " + name + "؟")) {
-            db.ref('user_accounts/' + key).remove();
-            alert("تم حذف الحساب!");
+            // Find the client with matching ID to delete payments too
+            const userAcc = userAccounts.find(u => u._key === key);
+            const client = userAcc ? clientsDatabase.find(c => c.id === userAcc.id) : null;
+            const promises = [];
+
+            // Delete user transactions
+            promises.push(db.ref('user_transactions/' + key).remove());
+
+            // Delete user requests
+            promises.push(
+                db.ref('user_requests').orderByChild('userKey').equalTo(key).once('value').then(reqSnap => {
+                    const reqPromises = [];
+                    reqSnap.forEach(child => { reqPromises.push(db.ref('user_requests/' + child.key).remove()); });
+                    return Promise.all(reqPromises);
+                })
+            );
+
+            // Delete client payments if client exists
+            if (client && client._key) {
+                promises.push(db.ref('client_payments/' + client._key).remove());
+            }
+
+            // Delete user account
+            promises.push(db.ref('user_accounts/' + key).remove());
+
+            Promise.all(promises).then(() => {
+                showToast("✅ تم حذف الحساب وسجله نهائياً!");
+            }).catch(err => {
+                alert("❌ خطأ: " + err.message);
+            });
         }
     }
 
@@ -2212,13 +2307,19 @@
 
     function settleDebt(key, name) {
         if(confirm("تصفير مديونية " + name + "؟")) {
-            db.ref('clients/' + key).update({debt: 0, totalOrders: 0});
-            const client = clientsDatabase.find(c => c._key === key);
-            if (client) {
-                const userAcc = userAccounts.find(u => u.id === client.id);
-                if (userAcc) { db.ref('user_accounts/' + userAcc._key).update({debt: 0}); }
-            }
-            alert("تم التصفير!");
+            // حذف سجل الدفعات أولاً
+            db.ref('client_payments/' + key).remove().then(() => {
+                return db.ref('clients/' + key).update({debt: 0, totalOrders: 0});
+            }).then(() => {
+                const client = clientsDatabase.find(c => c._key === key);
+                if (client) {
+                    const userAcc = userAccounts.find(u => u.id === client.id);
+                    if (userAcc) { db.ref('user_accounts/' + userAcc._key).update({debt: 0}); }
+                }
+                showToast("✅ تم التصفير وحذف سجل الدفعات!");
+            }).catch(err => {
+                alert("❌ خطأ: " + err.message);
+            });
         }
     }
 
