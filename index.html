@@ -446,7 +446,762 @@
             .hamburger-line { width: 20px; }
             .login-menu-panel { width: 260px; }
         }
-    </style>
+    
+/* ====== FAQ BOT STYLES ====== */
+#botWindow {
+    position: fixed;
+    bottom: 75px;
+    left: 15px;
+    width: 280px;
+    background: #0f0f0f;
+    border: 2px solid #ffd700;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+    display: none;
+    z-index: 9999;
+    font-family: Arial, sans-serif;
+    max-height: 400px;
+    overflow: hidden;
+}
+#botHeader {
+    background: #1a1a1a;
+    padding: 12px;
+    border-bottom: 1px solid #ffd700;
+    border-radius: 13px 13px 0 0;
+    color: #ffd700;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+#botCloseBtn {
+    float: left;
+    background: #333;
+    border: 1px solid #555;
+    color: #fff;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+    cursor: pointer;
+    font-size: 12px;
+    line-height: 25px;
+    text-align: center;
+}
+#botContent {
+    padding: 10px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.botQ {
+    background: #1a1a1a;
+    border: 1px solid #444;
+    color: #ffd700;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    text-align: right;
+}
+.botQ:hover { background: #2a2a2a; border-color: #ffd700; }
+.botA {
+    background: #222;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 8px;
+    font-size: 11px;
+    line-height: 1.6;
+    display: none;
+}
+#botToggle {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd700, #d4a017);
+    border: 3px solid #ffd700;
+    color: #000;
+    font-size: 28px;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.5), 0 0 40px rgba(255,215,0,0.2);
+    animation: robotBounce 2s ease-in-out infinite;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 0;
+}
+@keyframes robotBounce {
+    0%, 100% { transform: translateY(0) scale(1); }
+    25% { transform: translateY(-5px) scale(1.05); }
+    50% { transform: translateY(0) scale(1); }
+    75% { transform: translateY(-3px) scale(1.03); }
+}
+#botToggle:hover {
+    animation: robotSpin 0.5s ease-in-out;
+}
+@keyframes robotSpin {
+    0% { transform: rotate(0deg); }
+    25% { transform: rotate(-10deg); }
+    75% { transform: rotate(10deg); }
+    100% { transform: rotate(0deg); }
+}
+#botToggle:active {
+    transform: scale(0.9);
+}
+/* Bot avatar styling */
+.bot-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #ffd700;
+}
+.bot-avatar-header {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #ffd700;
+}
+
+
+/* ====== LIGHT MODE ====== */
+[data-theme="light"] {
+    --bg-color: #f5f5f5;
+    --card-bg: rgba(255,255,255,0.85);
+    --primary-color: #cc0000;
+    --primary-light: #e60000;
+    --primary-dark: #990000;
+    --accent-gold: #b8860b;
+    --accent-blue: #0066aa;
+    --accent-green: #00994d;
+    --accent-purple: #7d3c98;
+    --text-color: #1a1a1a;
+    --text-secondary: #555555;
+    --text-muted: #888888;
+    --input-bg: rgba(240,240,240,0.9);
+    --border-color: rgba(204,0,0,0.3);
+    --glass-bg: rgba(0,0,0,0.03);
+    --glass-border: rgba(204,0,0,0.2);
+    --success-color: #00994d;
+    --warning-color: #cc7700;
+    --danger-color: #cc0000;
+    --shadow-glow: 0 0 30px rgba(204,0,0,0.1);
+    --shadow-card: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+[data-theme="light"] body {
+    background: linear-gradient(135deg, #f0f0f0 0%, #e8e8e8 30%, #f5f5f5 60%, #f0f0f0 100%);
+}
+
+[data-theme="light"] body::before {
+    background: radial-gradient(circle at 20% 50%, rgba(204,0,0,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(125,60,152,0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(0,102,170,0.04) 0%, transparent 50%);
+}
+
+[data-theme="light"] .container {
+    background: rgba(255,255,255,0.85);
+    border-color: rgba(204,0,0,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15), 0 0 30px rgba(204,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.5);
+}
+
+[data-theme="light"] .container:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.2), 0 0 60px rgba(204,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+
+[data-theme="light"] input[type="text"],
+[data-theme="light"] input[type="password"],
+[data-theme="light"] input[type="number"],
+[data-theme="light"] input[type="date"],
+[data-theme="light"] input[type="url"],
+[data-theme="light"] select {
+    background: rgba(240,240,240,0.9);
+    color: #1a1a1a;
+    border-color: rgba(204,0,0,0.2);
+}
+
+[data-theme="light"] input[type="date"] {
+    color-scheme: light;
+}
+
+[data-theme="light"] .radio-box {
+    background: rgba(240,240,240,0.9);
+}
+
+[data-theme="light"] .radio-box label {
+    color: #1a1a1a;
+}
+
+[data-theme="light"] .search-container {
+    background: rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .search-result-box {
+    background: rgba(240,240,240,0.9);
+}
+
+[data-theme="light"] .box-light {
+    background: rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .admin-table td {
+    background: rgba(0,0,0,0.02);
+}
+
+[data-theme="light"] .user-orders-table td {
+    background: rgba(0,0,0,0.02);
+}
+
+[data-theme="light"] .txn-table td {
+    background: rgba(0,0,0,0.02);
+}
+
+[data-theme="light"] .log-table td {
+    background: rgba(0,0,0,0.02);
+}
+
+[data-theme="light"] .app-card {
+    background: rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .app-admin-card {
+    background: rgba(155,89,182,0.03);
+}
+
+[data-theme="light"] .telegram-bot-card {
+    background: rgba(0,136,204,0.03);
+}
+
+[data-theme="light"] .add-app-form {
+    background: rgba(155,89,182,0.03);
+}
+
+[data-theme="light"] .add-bot-form {
+    background: rgba(0,136,204,0.03);
+}
+
+[data-theme="light"] .user-request-form {
+    background: rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .balance-display {
+    background: linear-gradient(135deg, rgba(0,204,102,0.08), rgba(0,153,77,0.08));
+}
+
+[data-theme="light"] .debt-display {
+    background: linear-gradient(135deg, rgba(204,0,0,0.08), rgba(153,0,0,0.08));
+}
+
+[data-theme="light"] .staff-balance-box {
+    background: linear-gradient(135deg, rgba(255,215,0,0.08), rgba(255,170,0,0.08));
+}
+
+[data-theme="light"] .notifications-panel {
+    background: rgba(255,255,255,0.9);
+}
+
+[data-theme="light"] .notification-item {
+    background: rgba(0,0,0,0.03);
+}
+
+[data-theme="light"] .notif-bell {
+    background: rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .hamburger-menu {
+    background: rgba(0,0,0,0.05);
+}
+
+[data-theme="light"] .login-menu-panel {
+    background: linear-gradient(180deg, #f0f0f0 0%, #ffffff 100%);
+}
+
+[data-theme="light"] .login-menu-item:hover {
+    background: rgba(204,0,0,0.08);
+}
+
+[data-theme="light"] .delete-confirm-box,
+[data-theme="light"] .balance-modal-box,
+[data-theme="light"] .edit-balance-modal-box,
+[data-theme="light"] .staff-balance-modal-box,
+[data-theme="light"] .txn-modal-box {
+    background: rgba(255,255,255,0.95);
+}
+
+[data-theme="light"] .excel-box {
+    background: #fff;
+}
+
+[data-theme="light"] .empty-state {
+    color: #555555;
+}
+
+[data-theme="light"] ::-webkit-scrollbar-track {
+    background: #f5f5f5;
+}
+
+[data-theme="light"] #botWindow {
+    background: #f5f5f5;
+    border-color: #b8860b;
+}
+
+[data-theme="light"] #botHeader {
+    background: #e8e8e8;
+    border-color: #b8860b;
+    color: #b8860b;
+}
+
+[data-theme="light"] .botQ {
+    background: #e8e8e8;
+    border-color: #ccc;
+    color: #b8860b;
+}
+
+[data-theme="light"] .botA {
+    background: #f0f0f0;
+    border-color: #ddd;
+    color: #1a1a1a;
+}
+
+[data-theme="light"] #botToggle {
+    background: linear-gradient(135deg, #ffd700, #d4a017);
+    border-color: #b8860b;
+}
+
+
+
+/* ====== ROYAL MODE ====== */
+[data-theme="royal"] {
+    --bg-color: #0d0618;
+    --card-bg: rgba(30,15,50,0.85);
+    --primary-color: #ffd700;
+    --primary-light: #ffec8b;
+    --primary-dark: #b8860b;
+    --accent-gold: #ffd700;
+    --accent-blue: #9b59b6;
+    --accent-green: #00cc88;
+    --accent-purple: #e056fd;
+    --text-color: #f0e6ff;
+    --text-secondary: #b8a9c9;
+    --text-muted: #7a6b8a;
+    --input-bg: rgba(40,20,60,0.9);
+    --border-color: rgba(255,215,0,0.3);
+    --glass-bg: rgba(255,215,0,0.05);
+    --glass-border: rgba(255,215,0,0.2);
+    --success-color: #00cc88;
+    --warning-color: #ffaa00;
+    --danger-color: #ff4757;
+    --shadow-glow: 0 0 30px rgba(255,215,0,0.15);
+    --shadow-card: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+[data-theme="royal"] body {
+    background: linear-gradient(135deg, #0d0618 0%, #1a0a2e 30%, #2d1b4e 60%, #0d0618 100%);
+}
+
+[data-theme="royal"] body::before {
+    background: radial-gradient(circle at 20% 50%, rgba(255,215,0,0.12) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(224,86,253,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 40% 20%, rgba(155,89,182,0.06) 0%, transparent 50%);
+}
+
+[data-theme="royal"] .container {
+    background: rgba(30,15,50,0.85);
+    border-color: rgba(255,215,0,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6), 0 0 30px rgba(255,215,0,0.1), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+[data-theme="royal"] .container:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.7), 0 0 60px rgba(255,215,0,0.15), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+[data-theme="royal"] h2,
+[data-theme="royal"] h3 {
+    color: var(--primary-color);
+    text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+[data-theme="royal"] input[type="text"],
+[data-theme="royal"] input[type="password"],
+[data-theme="royal"] input[type="number"],
+[data-theme="royal"] input[type="date"],
+[data-theme="royal"] input[type="url"],
+[data-theme="royal"] select {
+    background: rgba(40,20,60,0.9);
+    color: #f0e6ff;
+    border-color: rgba(255,215,0,0.2);
+}
+
+[data-theme="royal"] input:focus,
+[data-theme="royal"] select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 20px rgba(255,215,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+[data-theme="royal"] .radio-box {
+    background: rgba(40,20,60,0.9);
+}
+
+[data-theme="royal"] .radio-box label {
+    color: #f0e6ff;
+}
+
+[data-theme="royal"] .search-container {
+    background: rgba(255,215,0,0.03);
+}
+
+[data-theme="royal"] .search-result-box {
+    background: rgba(30,15,50,0.9);
+}
+
+[data-theme="royal"] .box-light {
+    background: rgba(255,215,0,0.03);
+}
+
+[data-theme="royal"] .admin-table td {
+    background: rgba(255,215,0,0.02);
+}
+
+[data-theme="royal"] .user-orders-table td {
+    background: rgba(255,215,0,0.02);
+}
+
+[data-theme="royal"] .txn-table td {
+    background: rgba(255,215,0,0.02);
+}
+
+[data-theme="royal"] .log-table td {
+    background: rgba(255,215,0,0.02);
+}
+
+[data-theme="royal"] .app-card {
+    background: rgba(255,215,0,0.03);
+}
+
+[data-theme="royal"] .app-admin-card {
+    background: rgba(224,86,253,0.05);
+    border-color: rgba(224,86,253,0.3);
+}
+
+[data-theme="royal"] .telegram-bot-card {
+    background: rgba(155,89,182,0.05);
+    border-color: rgba(155,89,182,0.3);
+}
+
+[data-theme="royal"] .add-app-form {
+    background: rgba(224,86,253,0.05);
+    border-color: rgba(224,86,253,0.3);
+}
+
+[data-theme="royal"] .add-bot-form {
+    background: rgba(155,89,182,0.05);
+    border-color: rgba(155,89,182,0.3);
+}
+
+[data-theme="royal"] .user-request-form {
+    background: rgba(255,215,0,0.03);
+}
+
+[data-theme="royal"] .balance-display {
+    background: linear-gradient(135deg, rgba(0,204,136,0.15), rgba(0,153,102,0.15));
+    border-color: var(--success-color);
+}
+
+[data-theme="royal"] .balance-display .balance-value {
+    color: var(--success-color);
+    text-shadow: 0 0 20px rgba(0,204,136,0.5);
+}
+
+[data-theme="royal"] .debt-display {
+    background: linear-gradient(135deg, rgba(255,71,87,0.15), rgba(204,0,0,0.15));
+    border-color: var(--danger-color);
+}
+
+[data-theme="royal"] .debt-display .debt-value {
+    color: var(--danger-color);
+    text-shadow: 0 0 20px rgba(255,71,87,0.5);
+}
+
+[data-theme="royal"] .staff-balance-box {
+    background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(184,134,11,0.15));
+    border-color: var(--accent-gold);
+}
+
+[data-theme="royal"] .staff-balance-box .staff-balance-value {
+    color: var(--accent-gold);
+    text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+[data-theme="royal"] .notifications-panel {
+    background: rgba(30,15,50,0.95);
+}
+
+[data-theme="royal"] .notification-item {
+    background: rgba(255,215,0,0.03);
+}
+
+[data-theme="royal"] .notif-bell {
+    background: rgba(255,215,0,0.05);
+    color: var(--primary-color);
+}
+
+[data-theme="royal"] .hamburger-menu {
+    background: rgba(255,215,0,0.05);
+}
+
+[data-theme="royal"] .login-menu-panel {
+    background: linear-gradient(180deg, #1a0a2e 0%, #0d0618 100%);
+    border-left-color: var(--primary-color);
+}
+
+[data-theme="royal"] .login-menu-item:hover {
+    background: rgba(255,215,0,0.1);
+}
+
+[data-theme="royal"] .delete-confirm-box,
+[data-theme="royal"] .balance-modal-box,
+[data-theme="royal"] .edit-balance-modal-box,
+[data-theme="royal"] .staff-balance-modal-box,
+[data-theme="royal"] .txn-modal-box {
+    background: rgba(30,15,50,0.95);
+}
+
+[data-theme="royal"] .excel-box {
+    background: #1a0a2e;
+}
+
+[data-theme="royal"] .empty-state {
+    color: #b8a9c9;
+}
+
+[data-theme="royal"] ::-webkit-scrollbar-track {
+    background: #0d0618;
+}
+
+[data-theme="royal"] ::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+}
+
+[data-theme="royal"] #botWindow {
+    background: #1a0a2e;
+    border-color: var(--primary-color);
+}
+
+[data-theme="royal"] #botHeader {
+    background: #2d1b4e;
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+[data-theme="royal"] .botQ {
+    background: #2d1b4e;
+    border-color: rgba(255,215,0,0.3);
+    color: var(--primary-color);
+}
+
+[data-theme="royal"] .botA {
+    background: #1a0a2e;
+    border-color: rgba(255,215,0,0.2);
+    color: #f0e6ff;
+}
+
+[data-theme="royal"] #botToggle {
+    background: linear-gradient(135deg, #ffd700, #b8860b);
+    border-color: var(--primary-color);
+}
+
+[data-theme="royal"] button {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+}
+
+[data-theme="royal"] button:hover {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-color));
+}
+
+[data-theme="royal"] .btn-blue {
+    background: linear-gradient(135deg, var(--primary-light), var(--primary-dark)) !important;
+}
+
+[data-theme="royal"] .btn-success {
+    background: linear-gradient(135deg, var(--success-color), #00994d) !important;
+}
+
+[data-theme="royal"] .btn-warning {
+    background: linear-gradient(135deg, var(--warning-color), #ff5500) !important;
+}
+
+[data-theme="royal"] .btn-gold {
+    background: linear-gradient(135deg, #ffd700, #b8860b) !important;
+    color: #000;
+}
+
+[data-theme="royal"] .btn-secondary {
+    border-color: rgba(255,215,0,0.2);
+    color: var(--text-secondary);
+}
+
+[data-theme="royal"] .btn-secondary:hover {
+    background: rgba(255,215,0,0.1);
+    border-color: var(--primary-color);
+    color: #fff;
+}
+
+[data-theme="royal"] .badge {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+[data-theme="royal"] .status-pending {
+    border-color: var(--warning-color);
+    color: var(--warning-color);
+}
+
+[data-theme="royal"] .status-completed {
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
+[data-theme="royal"] .status-rejected {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+[data-theme="royal"] .admin-table th {
+    background: rgba(255,215,0,0.15);
+    color: var(--primary-color);
+}
+
+[data-theme="royal"] .user-orders-table th {
+    background: rgba(255,215,0,0.15);
+    color: var(--primary-color);
+}
+
+[data-theme="royal"] .txn-table th {
+    background: rgba(255,215,0,0.2);
+    color: var(--primary-color);
+}
+
+[data-theme="royal"] .search-result-box .log-table th {
+    background: rgba(255,215,0,0.2);
+    color: var(--primary-color);
+}
+
+[data-theme="royal"] .login-crown {
+    filter: drop-shadow(0 0 20px rgba(255,215,0,0.6));
+}
+
+[data-theme="royal"] .login-title {
+    color: var(--primary-color);
+    text-shadow: 0 0 20px rgba(255,215,0,0.5);
+}
+
+[data-theme="royal"] .login-heading-text {
+    color: var(--primary-color);
+}
+
+[data-theme="royal"] .theme-toggle-btn {
+    background: linear-gradient(135deg, #ffd700, #b8860b);
+    border-color: var(--primary-color);
+    animation: themePulseRoyal 3s ease-in-out infinite;
+}
+
+@keyframes themePulseRoyal {
+    0%, 100% { box-shadow: 0 4px 20px rgba(255,215,0,0.4); }
+    50% { box-shadow: 0 4px 30px rgba(255,215,0,0.7); }
+}
+/* ====== THEME TOGGLE BUTTON ====== */
+.theme-toggle-btn {
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    border: 2px solid #ffd700;
+    color: #000;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow: 0 4px 20px rgba(255,215,0,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    animation: themePulse 3s ease-in-out infinite;
+}
+
+@keyframes themePulse {
+    0%, 100% { box-shadow: 0 4px 20px rgba(255,215,0,0.4); }
+    50% { box-shadow: 0 4px 30px rgba(255,215,0,0.7); }
+}
+
+.theme-toggle-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(255,215,0,0.6);
+}
+
+.theme-toggle-btn:active {
+    transform: scale(0.95);
+}
+
+[data-theme="light"] .theme-toggle-btn {
+    background: linear-gradient(135deg, #333, #666);
+    border-color: #333;
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    animation: themePulseLight 3s ease-in-out infinite;
+}
+
+@keyframes themePulseLight {
+    0%, 100% { box-shadow: 0 4px 20px rgba(0,0,0,0.3); }
+    50% { box-shadow: 0 4px 30px rgba(0,0,0,0.5); }
+}
+
+@media (max-width: 600px) {
+    .theme-toggle-btn {
+        top: 10px;
+        left: 10px;
+        width: 45px;
+        height: 45px;
+        font-size: 20px;
+    }
+}
+
+
+        /* ====== LOGIN PAGE MOBILE - FIT SCREEN NO SCROLL ====== */
+        @media (max-width: 600px) {
+            body:has(#loginPage.active) {
+                padding: 6px !important;
+                min-height: 100svh !important;
+                justify-content: flex-start !important;
+                padding-top: 50px !important;
+            }
+            body:has(#loginPage.active) .container {
+                padding: 12px 14px !important;
+                margin-top: 0 !important;
+                border-radius: 16px !important;
+                max-width: 100% !important;
+            }
+        }
+        @media (max-width: 380px) {
+            body:has(#loginPage.active) {
+                padding: 5px !important;
+                padding-top: 45px !important;
+            }
+            body:has(#loginPage.active) .container {
+                padding: 10px 12px !important;
+            }
+        }
+</style>
 </head>
 <body>
 
@@ -646,36 +1401,119 @@
     <!-- LOGIN PAGE -->
     <div id="loginPage" class="form-page active">
         <!-- Crown Logo -->
-        <div style="text-align: center; margin-bottom: 10px;">
-            <div style="font-size: 80px; margin-bottom: 5px; filter: drop-shadow(0 0 20px rgba(255,215,0,0.5)); animation: crownGlow 2s ease-in-out infinite;">👑</div>
+        <div class="login-logo-wrapper">
+            <div class="login-crown">👑</div>
         </div>
         <style>
-            @keyframes crownGlow { 0%,100%{filter: drop-shadow(0 0 20px rgba(255,215,0,0.5));} 50%{filter: drop-shadow(0 0 40px rgba(255,215,0,0.8));} }
-        </style>
+            @keyframes crownGlow { 0%,100%{filter: drop-shadow(0 0 15px rgba(255,215,0,0.4));} 50%{filter: drop-shadow(0 0 30px rgba(255,215,0,0.7));} }
 
-        <h2 style="font-size: 28px; margin-bottom: 8px; color: var(--primary-color); text-shadow: 0 0 20px rgba(255,26,26,0.5);">وكالة الملوك للشحن</h2>
+        /* ====== COLLAPSIBLE SECTIONS ====== */
+        .section-toggle {
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            transition: opacity 0.3s ease;
+            position: relative;
+        }
+        .section-toggle:hover {
+            opacity: 0.8;
+        }
+        .section-toggle h3 {
+            margin: 0 !important;
+            flex: 1;
+            text-align: right;
+        }
+        .toggle-arrow {
+            font-size: 18px;
+            color: var(--primary-color);
+            transition: transform 0.3s ease;
+            margin-right: 10px;
+            display: inline-block;
+            min-width: 20px;
+        }
+        .toggle-arrow.collapsed {
+            transform: rotate(-90deg);
+        }
+        .section-content {
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease, padding 0.3s ease;
+            max-height: 5000px;
+            opacity: 1;
+        }
+        .section-content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            border: none !important;
+        }
+        .box-light.collapsed-box {
+            padding-bottom: 15px;
+        }
+        /* ====== LOGIN PAGE MOBILE OPTIMIZATION ====== */
+        .login-logo-wrapper { text-align: center; margin-bottom: 6px; }
+        .login-crown { font-size: 55px; margin-bottom: 2px; filter: drop-shadow(0 0 15px rgba(255,215,0,0.4)); animation: crownGlow 2s ease-in-out infinite; line-height: 1; }
+        .login-title { font-size: 22px; margin-bottom: 4px; color: var(--primary-color); text-shadow: 0 0 15px rgba(255,26,26,0.4); }
+        .login-subtitle { text-align: center; color: var(--text-secondary); font-size: 12px; margin-bottom: 12px; line-height: 1.5; padding: 0 5px; }
+        .login-heading { text-align: center; margin-bottom: 12px; }
+        .login-heading span { font-size: 18px; margin: 0 3px; }
+        .login-heading .login-heading-text { color: var(--primary-color); font-size: 18px; font-weight: 800; letter-spacing: 1px; }
+        .login-form .form-group { margin-bottom: 10px; }
+        .login-form label { font-size: 12px; margin-bottom: 3px; }
+        .login-form input { padding: 10px 12px; font-size: 14px; }
+        .login-form button { font-size: 15px; padding: 12px; margin-top: 4px; }
+        .login-footer { text-align: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--glass-border); }
+        .login-footer .footer-icon { font-size: 22px; margin-bottom: 3px; }
+        .login-footer .footer-dev { color: var(--primary-color); font-size: 11px; font-weight: 700; font-style: italic; margin-bottom: 2px; }
+        .login-footer .footer-tag { color: var(--text-secondary); font-size: 10px; }
 
-        <p style="text-align: center; color: var(--text-secondary); font-size: 14px; margin-bottom: 25px; line-height: 1.8; padding: 0 10px;">
+        @media (max-width: 600px) {
+            #loginPage.active ~ .container,
+            #loginPage.active { 
+                /* Login page specific mobile adjustments handled by classes above */
+            }
+        }
+        @media (max-width: 380px) {
+            .login-crown { font-size: 45px; }
+            .login-title { font-size: 18px; }
+            .login-subtitle { font-size: 11px; margin-bottom: 8px; }
+            .login-heading span, .login-heading .login-heading-text { font-size: 15px; }
+            .login-form .form-group { margin-bottom: 8px; }
+            .login-form input { padding: 8px 10px; font-size: 13px; }
+            .login-form button { font-size: 14px; padding: 10px; }
+            .login-footer { margin-top: 8px; padding-top: 8px; }
+            .login-footer .footer-icon { font-size: 18px; }
+        }
+</style>
+
+        <h2 class="login-title">وكالة الملوك للشحن</h2>
+
+        <p class="login-subtitle">
             اطلب شحنتك الآن، واترك الباقي علينا.<br>
             سرعة في التنفيذ، دقة في المتابعة، وثقة في كل شحنة.
         </p>
 
-        <div style="text-align: center; margin-bottom: 25px;">
-            <span style="font-size: 22px; margin: 0 5px;">👑</span>
-            <span style="color: var(--primary-color); font-size: 22px; font-weight: 800; letter-spacing: 2px;">تسجيل الدخول</span>
-            <span style="font-size: 22px; margin: 0 5px;">👑</span>
+        <div class="login-heading">
+            <span>👑</span>
+            <span class="login-heading-text">تسجيل الدخول</span>
+            <span>👑</span>
         </div>
 
-        <form id="loginForm" onsubmit="handleLogin(event)">
+        <form id="loginForm" class="login-form" onsubmit="handleLogin(event)">
             <div class="form-group">
-                <label style="text-align: right; font-size: 14px;">اسم المستخدم</label>
+                <label style="text-align: right;">اسم المستخدم</label>
                 <input type="text" id="loginUser" required placeholder="اسم المستخدم" style="text-align: right;">
             </div>
             <div class="form-group">
-                <label style="text-align: right; font-size: 14px;">الباسورد</label>
+                <label style="text-align: right;">الباسورد</label>
                 <input type="password" id="loginPass" required placeholder="الباسورد" style="text-align: right;">
             </div>
-            <button type="submit" style="background: linear-gradient(135deg, #ff1a1a, #cc0000) !important; font-size: 18px; padding: 16px; margin-top: 10px;">تسجيل الدخول</button>
+            <button type="submit" style="background: linear-gradient(135deg, #ff1a1a, #cc0000) !important;">تسجيل الدخول</button>
         </form>
 
         <div id="loginBlockedMsg" class="login-blocked-msg">
@@ -685,14 +1523,12 @@
         </div>
 
         <!-- Footer -->
-        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--glass-border);">
-            <div style="font-size: 32px; margin-bottom: 8px;">👨‍💻</div>
-            <p style="color: var(--primary-color); font-size: 14px; font-weight: 700; font-style: italic; margin-bottom: 5px;">Designed & Developed by Kareem</p>
-            <p style="color: var(--text-secondary); font-size: 12px;">تقنية احترافية تدير أعمالك بكفاءة وسرعة وثقة 👑</p>
+        <div class="login-footer">
+            <div class="footer-icon">👨‍💻</div>
+            <p class="footer-dev">Designed & Developed by Kareem</p>
+            <p class="footer-tag">تقنية احترافية تدير أعمالك بكفاءة وسرعة وثقة 👑</p>
         </div>
-    </div>
-
-    <!-- STAFF LOGIN PAGE -->
+    </div><!-- STAFF LOGIN PAGE -->
     <div id="staffLoginPage" class="form-page">
         <div style="text-align: center; margin-bottom: 10px;">
             <div style="font-size: 60px; margin-bottom: 5px;">💎</div>
@@ -901,12 +1737,15 @@
     </div>
 
     <!-- ADMIN PANEL -->
-    <div id="adminPanelPage" class="form-page">
-        <h2>لوحة السحاب السرية الإدارية</h2>
+    <div id="adminPanelPage" class="form-page"><h2>لوحة السحاب السرية الإدارية</h2>
 
         <div class="box-light" style="border: 1px solid var(--success-color);">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div class="section-toggle" onclick="toggleSection(this)">
                 <h3 style="margin:0;">نظام التسوية والمديونيات</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                 <button class="admin-download-btn" onclick="downloadAllDebts()">📥 تحميل جميع المديونيات (PDF)</button>
             </div>
             <input type="text" id="adminSearchInput" placeholder="🔍 بحث بالاسم أو ID..." onkeyup="filterAdminTable()">
@@ -914,20 +1753,30 @@
                 <thead><tr><th>الاسم</th><th>ID</th><th>الفئة</th><th>المديونية</th><th>إجراء</th></tr></thead>
                 <tbody id="adminClientsTableBody"></tbody>
             </table></div>
+            </div>
         </div>
 
-        <div class="box-light" style="border: 1px solid var(--primary-color);">
-            <h3 style="font-size: 15px;">🔗 إعداد ربط وجلب وتحديث Google Sheets</h3>
+        <div class="box-light" style="border: 1px solid var(--success-color);">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">🔗 إعداد ربط وجلب وتحديث Google Sheets</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
             <div class="form-group"><label>1. رابط الـ Web App:</label><input type="text" id="scriptUrlInput"></div>
             <div class="form-group"><label>2. رابط الشيت الأساسي:</label><input type="text" id="sheetUrlInput"></div>
             <button type="button" onclick="saveAdminSettings()">حفظ وإقران السحابة بالإكسل</button>
+            </div>
         </div>
 
-        <div class="box-light admin-apps-section">
+        <div class="box-light" style="border: 1px solid var(--success-color);">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">🎮 إدارة برامج / ألعاب الشحن</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
             <div class="section-title">
                 <span class="section-icon">🎮</span>
-                <h3>إدارة برامج / ألعاب الشحن</h3>
-            </div>
+                </div>
             <div id="adminAppsList"></div>
             <div class="add-app-form">
                 <h4>➕ إضافة برنامج / لعبة جديدة</h4>
@@ -955,10 +1804,15 @@
                 💡 البرامج النشطة فقط تظهر للمستخدمين في بوابتهم<br>
                 ✅ المستخدم يختار البرنامج قبل تقديم طلب الشحن
             </p>
+            </div>
         </div>
 
-        <div class="box-light telegram-bots-section">
-            <h3>📱 إدارة بوتات Telegram (متعددة)</h3>
+        <div class="box-light" style="border: 1px solid var(--success-color);">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">📱 إدارة بوتات Telegram (متعددة)</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
             <div id="telegramBotsList"></div>
             <div class="add-bot-form">
                 <h4>➕ إضافة بوت جديد</h4>
@@ -994,50 +1848,92 @@
                 💡 احصل على التوكن من @BotFather و ID الشات من @userinfobot<br>
                 ✅ جميع البوتات النشطة ستستقبل الإشعارات تلقائياً
             </p>
+            </div>
         </div>
 
-        <div id="excelBox" class="excel-box"><h3 style="color:#000; background:#f4f4f5; padding:10px; font-size:14px; text-align:right;">📊 لوحة مراقبة الحسابات:</h3><iframe id="excelIframe" src=""></iframe></div>
+        <div class="box-light" style="border: 1px solid var(--accent-green);">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0; color:var(--accent-green);">📊 لوحة مراقبة الحسابات (Excel)</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
+            <iframe id="excelIframe" src=""></iframe>
+            </div>
+        </div>
 
-        <div class="box-light" style="border: 2px solid var(--accent-gold); margin-top:20px;">
-            <h3 style="color: var(--accent-gold);">💰 الرصيد المشترك للموظفين</h3>
+        <div class="box-light" style="border: 1px solid var(--success-color);">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">💰 الرصيد المشترك للموظفين</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
             <div style="text-align: center; padding: 15px;">
                 <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: 8px;">الرصيد المتاح للجميع</div>
                 <div style="font-size: 42px; font-weight: 800; color: var(--accent-gold); text-shadow: 0 0 20px rgba(255,215,0,0.5);" id="adminSharedBalance">0.00</div>
                 <div style="font-size: 16px; color: var(--text-secondary);">دولار أمريكي</div>
             </div>
+            </div>
         </div>
 
-        <div class="box-light" style="margin-top:20px;">
-            <h3>👔 إضافة موظف جديد</h3>
+        <div class="box-light" style="border: 1px solid var(--success-color);">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">👔 إضافة موظف جديد</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
             <form id="addStaffForm" onsubmit="handleCreateStaff(event)">
                 <div class="form-group"><label>اسم الموظف</label><input type="text" id="newStaffUser" required></div>
                 <div class="form-group"><label>باسورد</label><input type="text" id="newStaffPass" required></div>
                 <button type="submit" style="background: linear-gradient(135deg, var(--success-color), #00994d) !important; color: #fff;">تفعيل الموظف</button>
             </form>
+            </div>
         </div>
 
-        <h3 style="color: var(--primary-color); font-size: 16px; margin-top:15px;">الموظفون الحاليون:</h3>
-        <div class="table-wrapper"><table class="admin-table"><thead><tr><th>الموظف</th><th>الباسورد</th><th>الرصيد المشترك</th><th>إجراء</th></tr></thead><tbody id="staffTableBody"></tbody></table></div>
+        <div class="box-light" style="margin-top:15px;">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">الموظفون الحاليون</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
+            <div class="table-wrapper"><table class="admin-table"><thead><tr><th>الموظف</th><th>الباسورد</th><th>الرصيد المشترك</th><th>إجراء</th></tr></thead><tbody id="staffTableBody"></tbody></table></div>
+            </div>
+        </div>
 
-        <div class="box-light" style="margin-top:20px; border: 1px solid var(--warning-color);">
-            <h3>👤 إنشاء حساب مستخدم جديد (للبوابة)</h3>
+        <div class="box-light" style="border: 1px solid var(--success-color);">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">👤 إنشاء حساب مستخدم جديد (للبوابة)</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
             <form id="addUserAccountForm" onsubmit="handleCreateUserAccount(event)">
                 <div class="form-group"><label>الاسم الكامل</label><input type="text" id="newUserAccName" required placeholder="اسم المستخدم"></div>
                 <div class="form-group"><label>الـ ID الثابت</label><input type="text" id="newUserAccId" required placeholder="الـ ID الخاص بالمستخدم"></div>
                 <div class="form-group"><label>الباسورد</label><input type="text" id="newUserAccPass" required placeholder="باسورد المستخدم"></div>
                 <button type="submit" style="background: linear-gradient(135deg, var(--warning-color), #ff5500) !important; color: #fff;">🚀 إنشاء حساب المستخدم</button>
             </form>
+            </div>
         </div>
 
-        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:15px;">
-            <h3 style="color: var(--warning-color); font-size: 16px; margin:0;">حسابات المستخدمين (البوابة):</h3>
+        <div class="box-light" style="margin-top:15px;">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">حسابات المستخدمين (البوابة)</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:15px;">
             <button class="btn-danger" style="padding:8px 14px;font-size:12px;width:auto;" onclick="clearAllUserTransactions()">🗑️ تصفير سجل المستخدمين</button>
         </div>
         <div class="table-wrapper"><table class="admin-table"><thead><tr><th>الاسم</th><th>ID</th><th>الباسورد</th><th>الرصيد</th><th>المديونية</th><th>إجراء</th></tr></thead><tbody id="userAccountsTableBody"></tbody></table></div>
+            </div>
+        </div>
 
-        <div class="box-light" style="border: 1px solid var(--accent-blue); margin-top: 20px;">
+        <div class="box-light" style="border: 1px solid var(--success-color);">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">📊 تقرير استخدام الرصيد المشترك</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                <h3 style="color: var(--accent-blue); margin:0;">📊 تقرير استخدام الرصيد المشترك</h3>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <button class="admin-download-btn" onclick="downloadStaffUsageReport()">📥 تحميل الفاتورة</button>
                     <button class="btn-danger" style="padding:8px 14px;font-size:12px;width:auto;" onclick="clearAllStaffTransactions()">🗑️ تصفير سجل الموظفين</button>
@@ -1063,11 +1959,17 @@
                     </div>
                 </div>
             </div>
-            <div id="staffUsageTable"></div>
-        
-        <div class="box-light" style="border: 1px solid var(--success-color); margin-top: 20px;">
+            <div id="staffUsageTable">
+            </div>
+        </div>
+
+        <div class="box-light" style="border: 1px solid var(--success-color);">
+            <div class="section-toggle" onclick="toggleSection(this)">
+                <h3 style="margin:0;">💵 تقرير دفعات العملاء (المدفوعات الجزئية)</h3>
+                <span class="toggle-arrow">▼</span>
+            </div>
+            <div class="section-content">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
-                <h3 style="color: var(--success-color); margin:0;">💵 تقرير دفعات العملاء (المدفوعات الجزئية)</h3>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                     <button class="admin-download-btn" onclick="downloadAllPaymentsPDF()">📥 تحميل التقرير (PDF)</button>
                     <button class="btn-success" style="padding:8px 14px;font-size:12px;width:auto;" onclick="exportPaymentsToExcel()">📊 تصدير Excel</button>
@@ -1090,9 +1992,10 @@
                 </div>
             </div>
             <div id="allPaymentsTable"></div>
+            </div>
         </div>
 
-</div>
+        <button type="button" class="btn-secondary" onclick="backToLoginOrDash()" style="margin-top: 25px;">رجوع</button></div>
 
         <button type="button" class="btn-secondary" onclick="backToLoginOrDash()" style="margin-top: 25px;">رجوع</button>
     </div>
@@ -3340,6 +4243,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
+        initTheme();
         const overlay = document.getElementById('deleteConfirmOverlay');
         if (overlay) overlay.addEventListener('click', function(e) { if (e.target === this) cancelDelete(); });
         const balanceOverlay = document.getElementById('balanceModalOverlay');
@@ -3357,6 +4261,260 @@
         const partialPaymentOverlay = document.getElementById('partialPaymentModalOverlay');
         if (partialPaymentOverlay) partialPaymentOverlay.addEventListener('click', function(e) { if (e.target === this) closePartialPaymentModal(); });
     });
+
+    // ====== COLLAPSIBLE SECTIONS TOGGLE ======
+    function toggleSection(toggleHeader) {
+        const box = toggleHeader.closest('.box-light');
+        if (!box) return;
+
+        const content = toggleHeader.nextElementSibling;
+        const arrow = toggleHeader.querySelector('.toggle-arrow');
+        if (!content || !arrow) return;
+
+        const isCollapsed = content.classList.toggle('collapsed');
+        arrow.classList.toggle('collapsed', isCollapsed);
+        box.classList.toggle('collapsed-box', isCollapsed);
+
+        // Save state to localStorage
+        const sectionTitle = toggleHeader.querySelector('h3');
+        if (sectionTitle) {
+            const title = sectionTitle.innerText.trim().substring(0, 30);
+            localStorage.setItem('admin_section_' + title, isCollapsed ? 'collapsed' : 'expanded');
+        }
+    }
+
+    // Restore collapsed states on page load
+    function restoreSectionStates() {
+        const adminPanel = document.getElementById('adminPanelPage');
+        if (!adminPanel) return;
+
+        const toggles = adminPanel.querySelectorAll('.section-toggle');
+        toggles.forEach(toggle => {
+            const sectionTitle = toggle.querySelector('h3');
+            if (!sectionTitle) return;
+            const title = sectionTitle.innerText.trim().substring(0, 30);
+            const savedState = localStorage.getItem('admin_section_' + title);
+            if (savedState === 'collapsed') {
+                const content = toggle.nextElementSibling;
+                const arrow = toggle.querySelector('.toggle-arrow');
+                const box = toggle.closest('.box-light');
+                if (content) content.classList.add('collapsed');
+                if (arrow) arrow.classList.add('collapsed');
+                if (box) box.classList.add('collapsed-box');
+            }
+        });
+    }
+
+    // Call restore when admin panel becomes active
+    document.addEventListener('DOMContentLoaded', function() {
+        const adminPanel = document.getElementById('adminPanelPage');
+        if (adminPanel) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.attributeName === 'class' && adminPanel.classList.contains('active')) {
+                        setTimeout(restoreSectionStates, 100);
+                    }
+                });
+            });
+            observer.observe(adminPanel, { attributes: true });
+            // Also restore if already active
+            if (adminPanel.classList.contains('active')) {
+                setTimeout(restoreSectionStates, 100);
+            }
+        }
+    });
+
+
+    // ====== FAQ BOT SCRIPT ======
+function toggleA(id) {
+    var el = document.getElementById(id);
+    if (el.style.display == 'block') {
+        el.style.display = 'none';
+    } else {
+        var all = document.getElementsByClassName('botA');
+        for (var i = 0; i < all.length; i++) {
+            all[i].style.display = 'none';
+        }
+        el.style.display = 'block';
+    }
+}
+
+    // ====== FAQ BOT VISIBILITY ======
+    function updateBotVisibility() {
+        const loginPage = document.getElementById('loginPage');
+        const botToggle = document.getElementById('botToggle');
+        const botWindow = document.getElementById('botWindow');
+        const themeBtn = document.getElementById('themeToggleBtn');
+        if (!botToggle) return;
+        if (loginPage && loginPage.classList.contains('active')) {
+            botToggle.style.display = 'flex';
+            if (themeBtn) themeBtn.style.display = 'flex';
+        } else {
+            botToggle.style.display = 'none';
+            if (botWindow) botWindow.style.display = 'none';
+            if (themeBtn) themeBtn.style.display = 'none';
+        }
+    }
+
+    // Watch for page changes
+    const botObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                updateBotVisibility();
+            }
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginPage = document.getElementById('loginPage');
+        if (loginPage) {
+            botObserver.observe(loginPage, { attributes: true });
+        }
+        updateBotVisibility();
+    });
+
+    // Also check on initial load
+    updateBotVisibility();
+    
+
+
+    // ====== THEME TOGGLE ======
+    function initTheme() {
+        const savedTheme = localStorage.getItem('ali_recharge_theme');
+        if (savedTheme === 'light') {
+            document.documentElement.setAttribute('data-theme', 'light');
+            updateThemeIcon('light');
+        } else if (savedTheme === 'royal') {
+            document.documentElement.setAttribute('data-theme', 'royal');
+            updateThemeIcon('royal');
+        } else {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            updateThemeIcon('dark');
+        }
+    }
+
+    function toggleTheme() {
+        const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+        let newTheme;
+        if (currentTheme === 'dark') { newTheme = 'light'; }
+        else if (currentTheme === 'light') { newTheme = 'royal'; }
+        else { newTheme = 'dark'; }
+        document.documentElement.setAttribute('data-theme', newTheme);
+        localStorage.setItem('ali_recharge_theme', newTheme);
+        updateThemeIcon(newTheme);
+        let toastMsg = '🌙 تم تفعيل الوضع الليلي';
+        if (newTheme === 'light') { toastMsg = '☀️ تم تفعيل الوضع النهاري'; }
+        else if (newTheme === 'royal') { toastMsg = '👑 تم تفعيل الوضع الملكي'; }
+        showToast(toastMsg);
+    }
+
+    function updateThemeIcon(theme) {
+        const icon = document.getElementById('themeIcon');
+        if (icon) {
+            if (theme === 'light') { icon.innerHTML = '&#127769;'; }
+            else if (theme === 'royal') { icon.innerHTML = '&#128081;'; }
+            else { icon.innerHTML = '&#127774;'; }
+        }
+    }
+
+    // Initialize theme on load
+    initTheme();
 </script>
+
+<!-- ====== FAQ BOT ====== -->
+<div id="botWindow">
+    <div id="botHeader">
+        <button id="botCloseBtn" onclick="document.getElementById('botWindow').style.display='none'; document.getElementById('botToggle').style.display='flex';">✕</button>
+        <img src="https://i.postimg.cc/gcfWLLzg/images.jpg" class="bot-avatar-header" alt="محسوبك محسن" onerror="this.style.display='none'">
+        <span>محسوبك محسن</span>
+    </div>
+    <div id="botContent">
+        <div class="botQ" onclick="toggleA('a1')">❓ كيف أسجل دخول كمستخدم؟</div>
+        <div class="botA" id="a1">
+            🔐 <b>تسجيل الدخول كمستخدم:</b><br><br>
+            1. من الصفحة الرئيسية مباشرة<br>
+            2. أدخل اسم المستخدم والباسورد<br>
+            3. اضغط "تسجيل الدخول"<br><br>
+            💡 إذا نسيت الباسورد، تواصل مع الإدارة
+        </div>
+
+        <div class="botQ" onclick="toggleA('a2')">❓ كيف أطلب شحن؟</div>
+        <div class="botA" id="a2">
+            📦 <b>طلب الشحن:</b><br><br>
+            1. سجل دخولك كمستخدم<br>
+            2. اختر البرنامج/اللعبة من الشبكة 🎮<br>
+            3. حدد الوجهة: "لنفسي" أو "للغير"<br>
+            4. أدخل المبلغ المطلوب<br>
+            5. اضغط "🚀 إرسال الطلب"<br>
+            6. انتظر موافقة الإدارة<br><br>
+            📌 تابع طلبك في قسم "طلباتي"
+        </div>
+
+        <div class="botQ" onclick="toggleA('a3')">❓ مشكلة في الرصيد</div>
+        <div class="botA" id="a3">
+            💰 <b>الرصيد:</b><br><br>
+            • سجل دخولك كمستخدم<br>
+            • الرصيد يظهر في أعلى الصفحة<br>
+            • إذا الرصيد صفر أو غير كافٍ:<br>
+              → تواصل مع الإدارة لإضافة رصيد<br><br>
+            • المديونية تظهر تحت الرصيد<br>
+            • يتم خصم الرصيد تلقائياً عند الموافقة
+        </div>
+
+        <div class="botQ" onclick="toggleA('a4')">❓ نسيت الباسورد</div>
+        <div class="botA" id="a4">
+            🔑 <b>استعادة الباسورد:</b><br><br>
+            • اضغط "نسيت كلمة المرور؟" في صفحة الدخول<br>
+            • أو تواصل مع الإدارة مباشرة<br>
+            • سيتم إعادة تعيين باسوردك<br><br>
+            ⚠️ لا تشارك باسوردك مع أحد!
+        </div>
+
+        <div class="botQ" onclick="toggleA('a5')">❓ البرامج والألعاب</div>
+        <div class="botA" id="a5">
+            🎮 <b>البرامج والألعاب:</b><br><br>
+            • تظهر في بوابة المستخدم كشبكة<br>
+            • اضغط على البرنامج لاختياره ✅<br>
+            • البرامج النشطة فقط تظهر<br>
+            • إذا لا توجد برامج:<br>
+              → تواصل مع الإدارة
+        </div>
+
+        <div class="botQ" onclick="toggleA('a6')">❓ متابعة الطلبات</div>
+        <div class="botA" id="a6">
+            🔔 <b>متابعة الطلبات:</b><br><br>
+            • تابع حالة طلبك في قسم "طلباتي"<br>
+            • الحالات:<br>
+              ⏳ قيد المعالجة<br>
+              ✅ تم الشحن<br>
+              ❌ مرفوض<br><br>
+            • يظهر اسم الموظف الذي نفذ الطلب
+        </div>
+
+        <div class="botQ" onclick="toggleA('a7')">❓ الدعم الفني</div>
+        <div class="botA" id="a7">
+            📞 <b>الدعم:</b><br><br>
+            • المطور: Kareem<br>
+            • النظام: Ali Recharge Agency<br>
+            • للمساعدة الفنية تواصل مع الإدارة<br><br>
+            📱 <b>واتساب الدعم الفني:</b><br>
+            <a href="https://wa.me/201200087007" target="_blank" style="color:#25D366; font-weight:bold; text-decoration:none; font-size:14px;">+20 12 00087007</a><br><br>
+            💡 نصائح:<br>
+            • احفظ باسوردك في مكان آمن<br>
+            • لا تشارك بياناتك مع أحد<br>
+            • سجل الخروج بعد الانتهاء
+        </div>
+    </div>
+</div>
+
+<button id="botToggle" onclick="document.getElementById('botWindow').style.display='block'; this.style.display='none';">
+    <img src="https://i.postimg.cc/gcfWLLzg/images.jpg" class="bot-avatar" alt="محسوبك محسن" onerror="this.innerHTML='<span style=font-size:32px;>🤖</span>'">
+</button>
+
+<!-- Theme Toggle Button -->
+<button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" title="تبديل الوضع" style="display:none;">
+    <span id="themeIcon">&#127769;</span>
+</button>
+
 </body>
 </html>
