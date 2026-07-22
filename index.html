@@ -2761,15 +2761,18 @@
                     const destText = req.destination === 'self' ? 'لنفسه' : 'للغير (' + req.targetId + ')';
                     const appName = req.appName ? '🎮 ' + req.appName + '\n' : '';
                     const copyText = 'ID: ' + req.userId + ' | المبلغ: ' + req.amount + ' $ | الوجهة: ' + destText;
+                    const targetIdCopyBtn = req.destination === 'other' 
+                        ? '<button class="btn-copy" onclick="copyToClipboard(\'' + req.targetId + '\')">📋 نسخ ID الهدف</button>' 
+                        : '';
                     item.innerHTML = 
                         '<div class="notif-title">🆕 طلب شحن جديد</div>' +
                         '<div class="notif-details">' +
                             'من: <strong>' + req.userName + '</strong><br>' +
                             'ID: <strong style="color:var(--primary-color);">' + req.userId + '</strong>' +
-                            '<button class="btn-copy" onclick="copyToClipboard(\'' + req.userId + '\')">📋 نسخ</button><br>' +
+                            '<button class="btn-copy" onclick="copyToClipboard(\'' + req.userId + '\')">📋 نسخ ID</button><br>' +
                             'المبلغ: <strong style="color:var(--primary-color);">' + req.amount + ' $</strong><br>' +
                             (appName ? appName : '') +
-                            'الوجهة: ' + destText +
+                            'الوجهة: ' + destText + targetIdCopyBtn + '<br>' +
                             '<button class="btn-copy" onclick="copyToClipboard(\'' + copyText + '\')">📋 نسخ الكل</button><br>' +
                             'الوقت: ' + req.time +
                         '</div>' +
@@ -4425,8 +4428,8 @@ function toggleA(id) {
 <div id="botWindow">
     <div id="botHeader">
         <button id="botCloseBtn" onclick="document.getElementById('botWindow').style.display='none'; document.getElementById('botToggle').style.display='flex';">✕</button>
-        <img src="https://i.postimg.cc/gcfWLLzg/images.jpg" class="bot-avatar-header" alt="محسوبك محسن" onerror="this.style.display='none'">
-        <span>محسوبك محسن</span>
+        <img src="https://i.postimg.cc/gcfWLLzg/images.jpg" class="bot-avatar-header" alt=" مساعد الملوك" onerror="this.style.display='none'">
+        <span> مساعد الملوك</span>
     </div>
     <div id="botContent">
         <div class="botQ" onclick="toggleA('a1')">❓ كيف أسجل دخول كمستخدم؟</div>
@@ -4435,7 +4438,7 @@ function toggleA(id) {
             1. من الصفحة الرئيسية مباشرة<br>
             2. أدخل اسم المستخدم والباسورد<br>
             3. اضغط "تسجيل الدخول"<br><br>
-            💡 إذا نسيت الباسورد، تواصل مع الإدارة
+            💡 إذا نسيت الباسورد، تواصل مع ادارة الملوك
         </div>
 
         <div class="botQ" onclick="toggleA('a2')">❓ كيف أطلب شحن؟</div>
@@ -4494,7 +4497,7 @@ function toggleA(id) {
         <div class="botQ" onclick="toggleA('a7')">❓ الدعم الفني</div>
         <div class="botA" id="a7">
             📞 <b>الدعم:</b><br><br>
-            • المطور: Kareem<br>
+            • المطور: ✯͜͡𝑲𝑨𝑹𝑬𝑴✘<br>
             • النظام: Ali Recharge Agency<br>
             • للمساعدة الفنية تواصل مع الإدارة<br><br>
             📱 <b>واتساب الدعم الفني:</b><br>
