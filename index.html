@@ -1345,6 +1345,27 @@
     </div>
 </div>
 
+<!-- Edit WhatsApp Modal (Admin) -->
+<div id="editWhatsappModalOverlay" class="edit-balance-modal-overlay">
+    <div class="edit-balance-modal-box">
+        <h3>📱 تعديل رقم واتساب</h3>
+        <div class="user-info" id="editWhatsappModalUserInfo"></div>
+        <div class="current-balance" style="border-color: var(--success-color);">
+            <div class="label">الرقم الحالي</div>
+            <div class="value" id="editWhatsappModalCurrent" style="color: var(--success-color); font-size: 22px;">—</div>
+        </div>
+        <div class="form-group">
+            <label>📱 رقم واتساب الجديد (مع كود الدولة)</label>
+            <input type="text" id="editWhatsappNewNumber" placeholder="مثال: 201200087007">
+            <p style="color: var(--text-secondary); font-size: 11px; margin-top: 4px;">💡 اكتب الرقم بدون + أو مسافات</p>
+        </div>
+        <div class="confirm-buttons">
+            <button class="btn-cancel" onclick="closeEditWhatsappModal()">إلغاء</button>
+            <button class="btn-success" onclick="confirmEditWhatsapp()">✅ حفظ</button>
+        </div>
+    </div>
+</div>
+
 <div id="notifBell" class="notif-bell" onclick="toggleNotifications()">
     <span class="bell-icon">🔔</span>
     <span>الإشعارات</span>
@@ -1649,7 +1670,7 @@
 
 <div class="balance-display">
             <div class="balance-icon">💎</div>
-            <div class="balance-label">الرصيد المتاح</div>
+            <div class="balance-label">الرصيد المتاح (للعرض فقط)</div>
             <div class="balance-value" id="userBalanceValue">0.00</div>
             <div class="balance-currency">دولار أمريكي</div>
         </div>
@@ -1682,9 +1703,9 @@
         </div>
 
         <div id="insufficientBalance" class="insufficient-balance">
-            <div class="warning-icon">⚠️</div>
-            <div class="warning-text">الرصيد غير كافٍ!</div>
-            <div class="warning-sub">الرصيد المتاح أقل من المبلغ المطلوب. يرجى التواصل مع الإدارة لإضافة رصيد.</div>
+            <div class="warning-icon">ℹ️</div>
+            <div class="warning-text">تنبيه</div>
+            <div class="warning-sub">الرصيد للعرض فقط. المبلغ سيضاف للمديونية عند الموافقة.</div>
         </div>
 
         <div class="user-request-form">
@@ -1706,6 +1727,7 @@
                     <input type="number" id="userChargeAmount" required placeholder="0.00" min="1" oninput="checkBalance()">
                 </div>
                 <button type="submit" id="submitRequestBtn">🚀 إرسال الطلب</button>
+            <p style="color: var(--text-secondary); font-size: 11px; margin-top: 8px; text-align: center;">💡 الرصيد للعرض فقط - المبلغ سيضاف للمديونية</p>
             </form>
         </div>
         <div class="box-light">
@@ -1750,7 +1772,7 @@
             </div>
             <input type="text" id="adminSearchInput" placeholder="🔍 بحث بالاسم أو ID..." onkeyup="filterAdminTable()">
             <div class="table-wrapper"><table class="admin-table">
-                <thead><tr><th>الاسم</th><th>ID</th><th>الفئة</th><th>المديونية</th><th>إجراء</th></tr></thead>
+                <thead><tr><th>الاسم</th><th>ID</th><th>📱 واتساب</th><th>الفئة</th><th>المديونية</th><th>إجراء</th></tr></thead>
                 <tbody id="adminClientsTableBody"></tbody>
             </table></div>
             </div>
@@ -1909,6 +1931,11 @@
                 <div class="form-group"><label>الاسم الكامل</label><input type="text" id="newUserAccName" required placeholder="اسم المستخدم"></div>
                 <div class="form-group"><label>الـ ID الثابت</label><input type="text" id="newUserAccId" required placeholder="الـ ID الخاص بالمستخدم"></div>
                 <div class="form-group"><label>الباسورد</label><input type="text" id="newUserAccPass" required placeholder="باسورد المستخدم"></div>
+                <div class="form-group">
+                    <label>📱 رقم واتساب (مع كود الدولة)</label>
+                    <input type="text" id="newUserAccWhatsapp" placeholder="مثال: 201200087007">
+                    <p style="color: var(--text-secondary); font-size: 11px; margin-top: 4px;">💡 اكتب الرقم بدون + أو مسافات</p>
+                </div>
                 <button type="submit" style="background: linear-gradient(135deg, var(--warning-color), #ff5500) !important; color: #fff;">🚀 إنشاء حساب المستخدم</button>
             </form>
             </div>
@@ -1923,7 +1950,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-top:15px;">
             <button class="btn-danger" style="padding:8px 14px;font-size:12px;width:auto;" onclick="clearAllUserTransactions()">🗑️ تصفير سجل المستخدمين</button>
         </div>
-        <div class="table-wrapper"><table class="admin-table"><thead><tr><th>الاسم</th><th>ID</th><th>الباسورد</th><th>الرصيد</th><th>المديونية</th><th>إجراء</th></tr></thead><tbody id="userAccountsTableBody"></tbody></table></div>
+        <div class="table-wrapper"><table class="admin-table"><thead><tr><th>الاسم</th><th>ID</th><th>الباسورد</th><th>📱 واتساب</th><th>الرصيد</th><th>المديونية</th><th>إجراء</th></tr></thead><tbody id="userAccountsTableBody"></tbody></table></div>
             </div>
         </div>
 
@@ -2007,6 +2034,11 @@
             <form id="addClientForm" onsubmit="handleSaveClient(event)">
                 <div class="form-group"><label>الاسم الكامل</label><input type="text" id="newClientName" required></div>
                 <div class="form-group"><label>الـ ID الثابت</label><input type="text" id="newClientId" required></div>
+            <div class="form-group">
+                <label>📱 رقم واتساب (مع كود الدولة)</label>
+                <input type="text" id="newClientWhatsapp" placeholder="مثال: 201200087007">
+                <p style="color: var(--text-secondary); font-size: 11px; margin-top: 4px;">💡 اكتب الرقم بدون + أو مسافات. مثال: 201200087007</p>
+            </div>
                 <button type="submit" style="background: linear-gradient(135deg, var(--success-color), #00994d) !important; color: #fff;">اعتماد العميل</button>
                 <button type="button" class="btn-secondary" onclick="backToDashboard()">إلغاء</button>
             </form>
@@ -2366,11 +2398,99 @@
     }
 
     // ==================== TRANSACTION CODE GENERATOR ====================
-    function generateTxnCode() {
+    
+// ==================== EDIT WHATSAPP (ADMIN) ====================
+let currentEditWhatsappTarget = null;
+
+function openEditWhatsappModal(userKey, userName, currentWhatsapp) {
+    currentEditWhatsappTarget = userKey;
+    const overlay = document.getElementById('editWhatsappModalOverlay');
+    const userInfo = document.getElementById('editWhatsappModalUserInfo');
+    const currentEl = document.getElementById('editWhatsappModalCurrent');
+    if (overlay && userInfo && currentEl) {
+        userInfo.innerText = 'المستخدم: ' + userName;
+        currentEl.innerText = currentWhatsapp || '— غير مسجل —';
+        document.getElementById('editWhatsappNewNumber').value = currentWhatsapp || '';
+        overlay.style.display = 'flex';
+    }
+}
+
+function closeEditWhatsappModal() {
+    currentEditWhatsappTarget = null;
+    document.getElementById('editWhatsappModalOverlay').style.display = 'none';
+}
+
+function confirmEditWhatsapp() {
+    if (!currentEditWhatsappTarget) { closeEditWhatsappModal(); return; }
+    const newWhatsapp = document.getElementById('editWhatsappNewNumber').value.trim();
+
+    // Also update the linked client if exists
+    db.ref('user_accounts/' + currentEditWhatsappTarget).once('value').then(snap => {
+        const userData = snap.val() || {};
+        const userId = userData.id;
+
+        const promises = [];
+        // Update user account
+        promises.push(db.ref('user_accounts/' + currentEditWhatsappTarget).update({ whatsapp: newWhatsapp }));
+
+        // Update linked client
+        const client = clientsDatabase.find(c => c.id === userId);
+        if (client && client._key) {
+            promises.push(db.ref('clients/' + client._key).update({ whatsapp: newWhatsapp }));
+        }
+
+        return Promise.all(promises);
+    }).then(() => {
+        showToast('✅ تم تحديث رقم واتساب بنجاح!');
+        closeEditWhatsappModal();
+    }).catch(err => { alert('❌ خطأ: ' + err.message); });
+}
+
+function generateTxnCode() {
         const now = new Date();
         const dateStr = now.getFullYear().toString() + String(now.getMonth()+1).padStart(2,'0') + String(now.getDate()).padStart(2,'0');
         const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
         return 'TXN-' + dateStr + '-' + randomStr;
+    }
+
+    // ==================== WHATSAPP NOTIFICATION ====================
+    function sendWhatsAppNotification(phone, clientName, amount, balance, debt) {
+        if (!phone) {
+            alert("❌ العميل ليس لديه رقم واتساب مسجل!");
+            return;
+        }
+        let cleanPhone = phone.toString().replace(/\D/g, '');
+        if (cleanPhone.startsWith('00')) cleanPhone = cleanPhone.substring(2);
+        if (cleanPhone.startsWith('+')) cleanPhone = cleanPhone.substring(1);
+
+        const now = new Date().toLocaleString('ar-EG');
+        const message = 
+            "✅ تم الشحن بنجاح!\n\n" +
+            "👤 العميل: " + clientName + "\n" +
+            "💰 المبلغ: " + parseFloat(amount).toFixed(2) + " $\n" +
+            "💎 الرصيد: " + parseFloat(balance).toFixed(2) + " $\n" +
+            "💳 المديونية: " + parseFloat(debt).toFixed(2) + " $\n\n" +
+            "🙏 شكراً لثقتكم بـ وكالة الملوك 👑\n" +
+            "⏰ " + now;
+
+        const waLink = "https://api.whatsapp.com/send?phone=" + cleanPhone + "&text=" + encodeURIComponent(message);
+        window.open(waLink, '_blank');
+        showToast("📱 تم فتح واتساب مع رسالة جاهزة!");
+    }
+
+    function sendWhatsAppFromLog(clientId, amount) {
+        const client = clientsDatabase.find(c => c.id === clientId);
+        const userAcc = userAccounts.find(u => u.id === clientId);
+
+        // Get name and whatsapp from either client or user account
+        const name = client ? client.name : (userAcc ? userAcc.name : '');
+        const phone = client && client.whatsapp ? client.whatsapp : (userAcc && userAcc.whatsapp ? userAcc.whatsapp : '');
+        const debt = userAcc ? (userAcc.debt || 0) : (client ? (client.debt || 0) : 0);
+        const balance = userAcc ? (userAcc.balance || 0) : 0;
+
+        if (!name) { alert("❌ العميل غير موجود!"); return; }
+
+        sendWhatsAppNotification(phone, name, amount, balance, debt);
     }
 
     // ==================== USER TRANSACTION HISTORY ====================
@@ -2562,15 +2682,9 @@
     }
 
     function checkBalance() {
-        if (!currentLoggedUser) return;
-        const amount = parseFloat(document.getElementById('userChargeAmount').value) || 0;
-        const balance = currentLoggedUser.balance || 0;
+        // الرصيد ثابت للعرض فقط - لا يتم التحقق من كفايته
         const warningDiv = document.getElementById('insufficientBalance');
-        if (amount > 0 && amount > balance) {
-            if (warningDiv) warningDiv.classList.add('active');
-        } else {
-            if (warningDiv) warningDiv.classList.remove('active');
-        }
+        if (warningDiv) warningDiv.classList.remove('active');
     }
 
     // ==================== TELEGRAM ====================
@@ -2683,7 +2797,8 @@
         clientsDatabase = [];
         snapshot.forEach(child => {
             let cl = child.val(); cl._key = child.key; clientsDatabase.push(cl);
-            tbody.innerHTML += '<tr><td>' + cl.name + '</td><td>' + cl.id + '</td><td>' + (cl.type || 'وكيل') + '</td><td>' + (cl.debt || 0) + '$</td>' +
+            const waLink = cl.whatsapp ? '<a href="https://api.whatsapp.com/send?phone=' + cl.whatsapp + '" target="_blank" style="color:var(--success-color);font-weight:700;">' + cl.whatsapp + '</a>' : '—';
+            tbody.innerHTML += '<tr><td>' + cl.name + '</td><td>' + cl.id + '</td><td>' + waLink + '</td><td>' + (cl.type || 'وكيل') + '</td><td>' + (cl.debt || 0) + '$</td>' +
             '<td><button class="btn-danger" style="padding:5px;background:var(--accent-blue);" onclick="settleDebt(&quot;' + child.key + '&quot;,&quot;' + cl.name + '&quot;)">تصفير</button>' +
             '<button class="btn-success" style="padding:5px;font-size:11px;margin:2px;" onclick="openPartialPaymentModal(&quot;' + child.key + '&quot;,&quot;' + cl.name + '&quot;,' + (cl.debt || 0) + ')">💵 دفع جزئي</button>' +
             '<button class="btn-blue" style="padding:5px;font-size:11px;margin:2px;" onclick="viewClientPayments(&quot;' + child.key + '&quot;,&quot;' + cl.name + '&quot;)">📋 سجل الدفعات</button>' +
@@ -2697,8 +2812,9 @@
         if(tbody) tbody.innerHTML = "";
         snapshot.forEach(child => {
             let ua = child.val(); ua._key = child.key; userAccounts.push(ua);
-            if(tbody) tbody.innerHTML += '<tr><td>' + ua.name + '</td><td>' + ua.id + '</td><td>' + ua.password + '</td><td style="color:var(--success-color);font-weight:700;">' + (ua.balance || 0) + '$</td><td>' + (ua.debt || 0) + '$</td>' +
-            '<td><button class="btn-gold" style="padding:5px;font-size:11px;margin:2px;" onclick="openBalanceModal(&quot;' + child.key + '&quot;,&quot;' + ua.name + '&quot;,' + (ua.balance || 0) + ')">💰 إضافة</button>' + '<button class="btn-blue" style="padding:5px;font-size:11px;margin:2px;" onclick="openEditBalanceModal(&quot;' + child.key + '&quot;,&quot;' + ua.name + '&quot;,' + (ua.balance || 0) + ')">✏️ تعديل</button>' + '<button class="btn-warning" style="padding:5px;font-size:11px;margin:2px;" onclick="openUserTxnModal(&quot;' + child.key + '&quot;,&quot;' + ua.name + '&quot;)">📋 سجل</button>' +
+            const waLink2 = ua.whatsapp ? '<a href="https://api.whatsapp.com/send?phone=' + ua.whatsapp + '" target="_blank" style="color:var(--success-color);font-weight:700;">' + ua.whatsapp + '</a>' : '—';
+            if(tbody) tbody.innerHTML += '<tr><td>' + ua.name + '</td><td>' + ua.id + '</td><td>' + ua.password + '</td><td>' + waLink2 + '</td><td style="color:var(--success-color);font-weight:700;">' + (ua.balance || 0) + '$</td><td>' + (ua.debt || 0) + '$</td>' +
+            '<td><button class="btn-gold" style="padding:5px;font-size:11px;margin:2px;" onclick="openBalanceModal(&quot;' + child.key + '&quot;,&quot;' + ua.name + '&quot;,' + (ua.balance || 0) + ')">💰 إضافة</button>' + '<button class="btn-blue" style="padding:5px;font-size:11px;margin:2px;" onclick="openEditBalanceModal(&quot;' + child.key + '&quot;,&quot;' + ua.name + '&quot;,' + (ua.balance || 0) + ')">✏️ تعديل</button>' + '<button class="btn-success" style="padding:5px;font-size:11px;margin:2px;" onclick="openEditWhatsappModal(&quot;' + child.key + '&quot;,&quot;' + ua.name + '&quot;,&quot;' + (ua.whatsapp || '') + '&quot;)">📱 واتساب</button>' + '<button class="btn-warning" style="padding:5px;font-size:11px;margin:2px;" onclick="openUserTxnModal(&quot;' + child.key + '&quot;,&quot;' + ua.name + '&quot;)">📋 سجل</button>' +
             '<button class="btn-danger" style="padding:5px;font-size:11px;margin:2px;" onclick="deleteUserAccount(&quot;' + child.key + '&quot;,&quot;' + ua.name + '&quot;)">🗑️ حذف</button></td></tr>';
         });
         if(currentLoggedUser) {
@@ -2764,12 +2880,19 @@
                     const targetIdCopyBtn = req.destination === 'other' 
                         ? '<button class="btn-copy" onclick="copyToClipboard(\'' + req.targetId + '\')">📋 نسخ ID الهدف</button>' 
                         : '';
+                    const userAccNotif = userAccounts.find(u => u.id === req.userId);
+                    const userBalanceNotif = userAccNotif ? (userAccNotif.balance || 0).toFixed(2) : '0.00';
+                    const userDebtNotif = userAccNotif ? (userAccNotif.debt || 0).toFixed(2) : '0.00';
+                                        const whatsappBtn = req.userId ? 
+                        '<button class="btn-success" style="padding:8px;font-size:12px;background:linear-gradient(135deg,#25D366,#128C7E)!important;" onclick="sendWhatsAppFromLog(\'' + req.userId + '\',' + req.amount + ')">📱 واتساب</button>' : '';
                     item.innerHTML = 
                         '<div class="notif-title">🆕 طلب شحن جديد</div>' +
                         '<div class="notif-details">' +
                             'من: <strong>' + req.userName + '</strong><br>' +
                             'ID: <strong style="color:var(--primary-color);">' + req.userId + '</strong>' +
                             '<button class="btn-copy" onclick="copyToClipboard(\'' + req.userId + '\')">📋 نسخ ID</button><br>' +
+                            '💰 <strong>الرصيد:</strong> <span style="color:var(--success-color);font-weight:700;">' + userBalanceNotif + ' $</span> | ' +
+                            '📉 <strong>المديونية:</strong> <span style="color:var(--danger-color);font-weight:700;">' + userDebtNotif + ' $</span><br>' +
                             'المبلغ: <strong style="color:var(--primary-color);">' + req.amount + ' $</strong><br>' +
                             (appName ? appName : '') +
                             'الوجهة: ' + destText + targetIdCopyBtn + '<br>' +
@@ -2778,6 +2901,7 @@
                         '</div>' +
                         '<div class="notif-actions">' +
                             '<button class="btn-success" onclick="approveUserRequest(\'' + req._key + '\')">✅ تم العمل</button>' +
+                            whatsappBtn +
                             '<button class="btn-danger" onclick="rejectUserRequest(\'' + req._key + '\')">❌ رفض</button>' +
                         '</div>';
                     list.appendChild(item);
@@ -2822,6 +2946,7 @@
             const chargeDest = document.querySelector('input[name="userChargeDest"]:checked').value;
             const amount = parseFloat(document.getElementById('userChargeAmount').value);
             if (!amount || amount <= 0) { alert("❌ يرجى إدخال مبلغ صحيح!"); return; }
+            // الرصيد ثابت للعرض فقط - لا يتم التحقق منه
             let targetId = currentLoggedUser.id;
             if(chargeDest === 'other') {
                 targetId = document.getElementById('userOtherTargetId').value.trim();
@@ -2870,33 +2995,13 @@
             let userBalanceDeducted = false;
             let deductAmountFromUser = 0;
 
+            let newUserDebt = 0;
             return userAccRef.once('value').then(uSnap => {
                 const uData = uSnap.val() || {};
-                const currentUserBalance = uData.balance || 0;
-
-                if (currentUserBalance >= reqData.amount) {
-                    const newUserBalance = currentUserBalance - reqData.amount;
-                    userBalanceDeducted = true;
-                    deductAmountFromUser = reqData.amount;
-                    const code = generateTxnCode();
-                    const now = new Date().toLocaleDateString('en-US') + ', ' + new Date().toLocaleTimeString('en-US');
-                    const txn = { type: 'deduct', amount: reqData.amount, code: code, date: now, description: 'خصم مقابل شحنة معتمدة (طلب #' + requestKey.substring(0, 6) + ')', balanceAfter: newUserBalance, admin: currentLoggedStaff };
-                    return db.ref('user_transactions/' + reqData.userKey).push().set(txn).then(() => {
-                        return userAccRef.update({ balance: newUserBalance });
-                    });
-                } else if (currentUserBalance > 0) {
-                    const remaining = reqData.amount - currentUserBalance;
-                    userBalanceDeducted = true;
-                    deductAmountFromUser = currentUserBalance;
-                    const code = generateTxnCode();
-                    const now = new Date().toLocaleDateString('en-US') + ', ' + new Date().toLocaleTimeString('en-US');
-                    const txn = { type: 'deduct', amount: currentUserBalance, code: code, date: now, description: 'خصم جزئي مقابل شحنة (طلب #' + requestKey.substring(0, 6) + ') - المتبقي ' + remaining.toFixed(2) + ' $ مديونية', balanceAfter: 0, admin: currentLoggedStaff };
-                    return db.ref('user_transactions/' + reqData.userKey).push().set(txn).then(() => {
-                        return userAccRef.update({ balance: 0, debt: (uData.debt || 0) + remaining });
-                    });
-                } else {
-                    return userAccRef.update({ debt: (uData.debt || 0) + reqData.amount });
-                }
+                newUserDebt = (uData.debt || 0) + reqData.amount;
+                // الرصيد ثابت للعرض فقط - لا يتم خصمه
+                // نضيف المبلغ للمديونية فقط
+                return userAccRef.update({ debt: newUserDebt });
             }).then(() => {
                 return clientRef.once('value').then(snap => {
                     const data = snap.val();
@@ -2913,15 +3018,25 @@
                 sendToGoogleSheet("appendRow", { staff: currentLoggedStaff, clientName: reqData.userName, clientId: reqData.userId, destination: reqData.destination === 'self' ? 'لنفسه' : 'للغير', chargedId: reqData.targetId, amount: reqData.amount, time: reqData.time, source: 'user_portal', appName: reqData.appName || '' });
                 notifyRequestApproved(reqData, currentLoggedStaff);
                 let msg = '✅ تمت الموافقة على الطلب وتوثيق الحركة!';
-                if (userBalanceDeducted && deductAmountFromUser >= reqData.amount) {
-                    msg += '\n💰 تم خصم ' + reqData.amount.toFixed(2) + ' $ من رصيد المستخدم.';
-                } else if (userBalanceDeducted && deductAmountFromUser > 0) {
-                    msg += '\n💰 تم خصم ' + deductAmountFromUser.toFixed(2) + ' $ من الرصيد والباقي مديونية.';
-                } else {
-                    msg += '\n⚠️ المستخدم ليس لديه رصيد - تمت إضافة المبلغ كمديونية.';
-                }
                 msg += '\n📊 تم خصم ' + reqData.amount.toFixed(2) + ' $ من الرصيد المشترك للموظفين.';
+                msg += '\n💰 تمت إضافة المبلغ للمديونية.';
                 alert(msg);
+                // إرسال إشعار واتساب للعميل
+                const clientForWa = clientsDatabase.find(c => c.id === reqData.userId);
+                const userAccForWa = userAccounts.find(u => u.id === reqData.userId);
+                if (clientForWa && clientForWa.whatsapp) {
+                    setTimeout(() => {
+                        if (confirm("📱 هل تريد إرسال إشعار واتساب للعميل الآن؟")) {
+                            sendWhatsAppNotification(
+                                clientForWa.whatsapp,
+                                reqData.userName,
+                                reqData.amount,
+                                userAccForWa ? (userAccForWa.balance || 0) : 0,
+                                newUserDebt
+                            );
+                        }
+                    }, 500);
+                }
                 updateNotificationBadge();
             });
         }).catch(err => { console.error("Approve error:", err); alert("❌ خطأ: " + err.message); });
@@ -3071,11 +3186,12 @@
         const name = document.getElementById('newUserAccName').value.trim();
         const id = document.getElementById('newUserAccId').value.trim();
         const password = document.getElementById('newUserAccPass').value.trim();
+        const whatsapp = document.getElementById('newUserAccWhatsapp').value.trim();
         const clientExists = clientsDatabase.some(c => c.id === id);
         if(!clientExists) { alert("⚠️ تنبيه: هذا الـ ID غير موجود في قاعدة العملاء. يجب إضافته أولاً كعميل."); return; }
         const accExists = userAccounts.some(u => u.id === id);
         if(accExists) { alert("❌ خطأ: حساب مستخدم بهذا الـ ID موجود بالفعل!"); return; }
-        const userPayload = { name: name, id: id, password: password, balance: 0, debt: 0, createdAt: new Date().toLocaleDateString('en-US') + ', ' + new Date().toLocaleTimeString('en-US') };
+        const userPayload = { name: name, id: id, password: password, whatsapp: whatsapp, balance: 0, debt: 0, createdAt: new Date().toLocaleDateString('en-US') + ', ' + new Date().toLocaleTimeString('en-US') };
         db.ref('user_accounts').push().set(userPayload)
         .then(() => { alert('✅ تم إنشاء حساب المستخدم بنجاح!\n\nالاسم: ' + name + '\nID: ' + id + '\nالباسورد: ' + password); document.getElementById('addUserAccountForm').reset(); })
         .catch(err => { alert('❌ خطأ: ' + err.message); });
@@ -3573,7 +3689,28 @@
         const id = document.getElementById('idSearchInput').value.trim();
         const typeSelected = document.querySelector('input[name="targetType"]:checked').value;
         const found = clientsDatabase.find(c => c.id === id && c.type === typeSelected);
-        if (found) { document.getElementById('clientSelect').value = found.name; document.getElementById('clientStaticId').value = found.id; }
+        if (found) { 
+            document.getElementById('clientSelect').value = found.name; 
+            document.getElementById('clientStaticId').value = found.id;
+            // Show balance and debt
+            const userAcc = userAccounts.find(u => u.id === found.id);
+            let balanceHtml = '';
+            if (userAcc) {
+                balanceHtml = '<div style="margin-top:8px;padding:10px;background:rgba(0,204,102,0.1);border:1px solid var(--success-color);border-radius:8px;text-align:center;">' +
+                    '<span style="color:var(--success-color);font-weight:700;">💰 الرصيد: ' + (userAcc.balance || 0).toFixed(2) + ' $</span> | ' +
+                    '<span style="color:var(--danger-color);font-weight:700;">📉 المديونية: ' + (userAcc.debt || 0).toFixed(2) + ' $</span>' +
+                    '</div>';
+            }
+            const existingBalance = document.getElementById('clientBalanceInfo');
+            if (existingBalance) existingBalance.remove();
+            const idField = document.getElementById('clientStaticId');
+            if (idField && idField.parentNode) {
+                const div = document.createElement('div');
+                div.id = 'clientBalanceInfo';
+                div.innerHTML = balanceHtml;
+                idField.parentNode.appendChild(div);
+            }
+        }
     }
 
     function filterAdminTable() {
@@ -3862,6 +3999,27 @@
         const typeSelected = document.querySelector('input[name="targetType"]:checked').value;
         const found = clientsDatabase.find(c => c.name === selectedName && c.type === typeSelected);
         document.getElementById('clientStaticId').value = found ? found.id : "";
+
+        // Show balance and debt under the ID field
+        let balanceHtml = '';
+        if (found) {
+            const userAcc = userAccounts.find(u => u.id === found.id);
+            if (userAcc) {
+                balanceHtml = '<div style="margin-top:8px;padding:10px;background:rgba(0,204,102,0.1);border:1px solid var(--success-color);border-radius:8px;text-align:center;">' +
+                    '<span style="color:var(--success-color);font-weight:700;">💰 الرصيد: ' + (userAcc.balance || 0).toFixed(2) + ' $</span> | ' +
+                    '<span style="color:var(--danger-color);font-weight:700;">📉 المديونية: ' + (userAcc.debt || 0).toFixed(2) + ' $</span>' +
+                    '</div>';
+            }
+        }
+        const existingBalance = document.getElementById('clientBalanceInfo');
+        if (existingBalance) existingBalance.remove();
+        const idField = document.getElementById('clientStaticId');
+        if (idField && idField.parentNode) {
+            const div = document.createElement('div');
+            div.id = 'clientBalanceInfo';
+            div.innerHTML = balanceHtml;
+            idField.parentNode.appendChild(div);
+        }
     }
 
     function lookupDebtById() {
@@ -3871,6 +4029,7 @@
         const resultBox = document.getElementById('searchResult');
         if(!searchId) { resultBox.style.display = 'none'; return; }
         const found = clientsDatabase.find(c => c.id === searchId);
+        const userAccLookup = userAccounts.find(u => u.id === searchId);
         resultBox.style.display = 'block';
         if(!found) { resultBox.innerHTML = '❌ الـ ID غير مسجل!'; return; }
         const fromDate = fromDateVal ? new Date(fromDateVal + 'T00:00:00') : null;
@@ -3901,6 +4060,10 @@
             html += '<h4>📌 بيانات العميل: ' + found.name + '</h4>';
             html += '<div class="summary-row"><strong>الـ ID:</strong><span>' + found.id + '</span></div>';
             html += '<div class="summary-row"><strong>الفئة:</strong><span>' + found.type + '</span></div>';
+            if (userAccLookup) {
+                html += '<div class="summary-row"><strong>💰 الرصيد:</strong><span style="color:var(--success-color);font-weight:700;">' + (userAccLookup.balance || 0).toFixed(2) + ' $</span></div>';
+                html += '<div class="summary-row"><strong>📉 المديونية:</strong><span style="color:var(--danger-color);font-weight:700;">' + (userAccLookup.debt || 0).toFixed(2) + ' $</span></div>';
+            }
             if (hasDateFilter) {
                 html += '<div class="summary-row"><strong>📅 الفترة:</strong><span>' + (fromDateVal || 'البداية') + ' &rarr; ' + (toDateVal || 'النهاية') + '</span></div>';
                 html += '<div class="summary-row"><strong>💰 المديونية في الفترة:</strong><span>' + filteredDebt.toFixed(2) + ' $</span></div>';
@@ -4095,9 +4258,10 @@
         event.preventDefault();
         const name = document.getElementById('newClientName').value.trim();
         const id = document.getElementById('newClientId').value.trim();
+        const whatsapp = document.getElementById('newClientWhatsapp').value.trim();
         const isExists = clientsDatabase.some(c => c.id === id);
         if (isExists) { alert("خطأ: هذا الـ ID مسجل بالفعل في المنظومة، لا يمكن تكرار نفس الـ ID!"); return; }
-        const clientPayload = { type: currentAddingType, name: name, id: id, debt: 0, totalOrders: 0 };
+        const clientPayload = { type: currentAddingType, name: name, id: id, whatsapp: whatsapp, debt: 0, totalOrders: 0 };
         db.ref('clients/' + id).set(clientPayload);
         sendToGoogleSheet("createTab", clientPayload);
         alert('تم الحفظ وإصدار أمر إنشاء ورقة عمل بالإكسل باسم: ' + name);
@@ -4118,10 +4282,13 @@
         const now = new Date();
         const formattedTime = now.toLocaleDateString('en-US') + ', ' + now.toLocaleTimeString('en-US');
         const clientRef = db.ref('clients/' + staticId);
+        let finalClientDebt = 0;
+        let finalUserDebt = 0;
         clientRef.once('value').then((snapshot) => {
             const data = snapshot.val();
             const newDebt = (data.debt || 0) + amount;
             const newOrders = (data.totalOrders || 0) + 1;
+            finalClientDebt = newDebt;
             return clientRef.update({ debt: newDebt, totalOrders: newOrders });
         }).then(() => {
             const report = { staff: currentLoggedStaff, clientName: clientName, clientId: staticId, destination: chargeDestination === 'self' ? 'لنفسه' : 'للغير', chargedId: finalChargedId, amount: amount, time: formattedTime, source: 'staff_manual' };
@@ -4132,7 +4299,9 @@
                 const userAccRef = db.ref('user_accounts/' + userAcc._key);
                 return userAccRef.once('value').then(uSnap => {
                     const uData = uSnap.val() || {};
-                    return userAccRef.update({ debt: (uData.debt || 0) + amount });
+                    const newUserDebt2 = (uData.debt || 0) + amount;
+                    finalUserDebt = newUserDebt2;
+                    return userAccRef.update({ debt: newUserDebt2 });
                 });
             }
         }).then(() => {
@@ -4140,6 +4309,22 @@
             const msg = '✅ *شحن جديد*\n\n👤 *العميل:* ' + clientName + '\n🆔 *ID:* ' + staticId + '\n💰 *المبلغ:* ' + amount + ' $\n🎯 *الوجهة:* ' + (chargeDestination === 'self' ? 'لنفسه' : 'للغير') + '\n👔 *الموظف:* ' + currentLoggedStaff + '\n⏰ ' + formattedTime;
             sendTelegramToAllActiveBots(msg);
             alert('تم الشحن وتوثيق الحركة في ملف إكسل العميل المخصص!');
+            // إرسال إشعار واتساب للعميل بالمديونية الصحيحة بعد الشحن
+            const clientForWa = clientsDatabase.find(c => c.id === staticId);
+            const userAccForWa = userAccounts.find(u => u.id === staticId);
+            if (clientForWa && clientForWa.whatsapp) {
+                setTimeout(() => {
+                    if (confirm("📱 هل تريد إرسال إشعار واتساب للعميل؟")) {
+                        sendWhatsAppNotification(
+                            clientForWa.whatsapp,
+                            clientName,
+                            amount,
+                            userAccForWa ? (userAccForWa.balance || 0) : 0,
+                            finalUserDebt || finalClientDebt
+                        );
+                    }
+                }, 500);
+            }
             document.getElementById('chargeAmount').value = "";
             return deductStaffBalance(amount, clientName, staticId);
         }).then(() => {
@@ -4210,11 +4395,8 @@
                     const uData = uSnap.val() || {};
                     const currentUserDebt = parseFloat(uData.debt) || 0;
                     const newUserDebt = Math.max(0, currentUserDebt - pendingDeleteLogAmount);
-                    let newBalance = uData.balance || 0;
-                    if (logData && logData.userBalanceDeducted && logData.deductAmountFromUser > 0) {
-                        newBalance += logData.deductAmountFromUser;
-                    }
-                    return db.ref('user_accounts/' + userAcc._key).update({ debt: newUserDebt, balance: newBalance });
+                    // الرصيد ثابت للعرض - لا يتم تعديله
+                    return db.ref('user_accounts/' + userAcc._key).update({ debt: newUserDebt });
                 }));
             }
             if (logData && logData.requestKey) {
@@ -4263,6 +4445,8 @@
         if (userTxnOverlay) userTxnOverlay.addEventListener('click', function(e) { if (e.target === this) closeUserTxnModal(); });
         const partialPaymentOverlay = document.getElementById('partialPaymentModalOverlay');
         if (partialPaymentOverlay) partialPaymentOverlay.addEventListener('click', function(e) { if (e.target === this) closePartialPaymentModal(); });
+        const editWhatsappOverlay = document.getElementById('editWhatsappModalOverlay');
+        if (editWhatsappOverlay) editWhatsappOverlay.addEventListener('click', function(e) { if (e.target === this) closeEditWhatsappModal(); });
     });
 
     // ====== COLLAPSIBLE SECTIONS TOGGLE ======
@@ -4501,7 +4685,7 @@ function toggleA(id) {
             • النظام: Ali Recharge Agency<br>
             • للمساعدة الفنية تواصل مع الإدارة<br><br>
             📱 <b>واتساب الدعم الفني:</b><br>
-            <a href="https://wa.me/201200087007" target="_blank" style="color:#25D366; font-weight:bold; text-decoration:none; font-size:14px;">+20 12 00087007</a><br><br>
+            <a href="https://api.whatsapp.com/send?phone=201200087007" target="_blank" style="color:#25D366; font-weight:bold; text-decoration:none; font-size:14px;">+20 12 00087007</a><br><br>
             💡 نصائح:<br>
             • احفظ باسوردك في مكان آمن<br>
             • لا تشارك بياناتك مع أحد<br>
