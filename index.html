@@ -3046,7 +3046,11 @@ function generateTxnCode() {
         if(!confirm("هل أنت متأكد من رفض هذا الطلب؟")) return;
         const reqRef = db.ref('user_requests/' + requestKey);
         reqRef.update({ status: 'rejected', staff: currentLoggedStaff || 'system', processedTime: new Date().toLocaleDateString('en-US') + ', ' + new Date().toLocaleTimeString('en-US') }).then(() => { 
-            showToast('❌ تم رفض الطلب'); 
+            showToast('❌ تم رفض الطلب');
+            reqRef.once('value').then(snap => {
+                const reqData = snap.val();
+                if(reqData) notifyRequestRejected(reqData, currentLoggedStaff || 'system');
+            });
             updateNotificationBadge(); 
         }).catch(err => { alert('❌ خطأ: ' + err.message); });
     }
@@ -3416,8 +3420,7 @@ function generateTxnCode() {
             }).then(() => {
                 showToast('✅ تم تسجيل الدفع بنجاح!\nالمبلغ: ' + amount.toFixed(2) + ' $\nالمديونية المتبقية: ' + newDebt.toFixed(2) + ' $');
                 closePartialPaymentModal();
-                const msg = '💵 *دفع جزئي مسجل*\n\n👤 *العميل:* ' + (clientData.name || '') + '\n🆔 *ID:* ' + (clientData.id || '') + '\n💰 *المبلغ المدفوع:* ' + amount.toFixed(2) + ' $\n📉 *المديونية السابقة:* ' + currentDebt.toFixed(2) + ' $\n📊 *المديونية المتبقية:* ' + newDebt.toFixed(2) + ' $\n📝 *ملاحظة:* ' + (note || 'دفع جزئي') + '\n⏰ ' + now;
-                sendTelegramToAllActiveBots(msg);
+                notifyPartialPayment(clientData.name || '', clientData.id || '', amount, currentDebt, newDebt, note, currentLoggedStaff || 'system', now);
             });
         }).catch(err => {
             if (err !== 'amount_exceeds_debt') {
@@ -3759,12 +3762,244 @@ function generateTxnCode() {
     }
 
     function notifyNewRequest(requestData) {
-        const appInfo = requestData.appName ? '🎮 *البرنامج:* ' + requestData.appName + '\n' : '';
-        const message = '🆕 *طلب شحن جديد!*\n\n👤 *العميل:* ' + requestData.userName + '\n🆔 *ID:* ' + requestData.userId + '\n' + appInfo + '💰 *المبلغ:* ' + requestData.amount + ' $\n🎯 *الوجهة:* ' + (requestData.destination === 'self' ? 'لنفسه' : 'للغير (' + requestData.targetId + ')') + '\n⏰ *الوقت:* ' + requestData.time + '\n\n🔔 يرجى مراجعة لوحة التحكم للموافقة على الطلب.';
+    db.ref('user_accounts/' + requestData.userKey).once('value').then(snap => {
+        const userData = snap.val() || {};
+        const balance = (userData.balance || 0).toFixed(2);
+        const debt = (userData.debt || 0).toFixed(2);
+
+        const appInfo = requestData.appName ? '\uD83C\uDFAE *\u0627\u0644\u0628\u0631\u0646\u0627\u0645\u062C:* ' + requestData.appName + '\n' : '';
+        const destText = requestData.destination === 'self' 
+            ? '\u0644\u0646\u0641\u0633\u0647' 
+            : '\u0644\u0644\u063A\u064A\u0631 (' + requestData.targetId + ')';
+
+        const message = 
+            '\uD83C\uDD95 *\u0637\u0644\u0628 \u0634\u062D\u0646 \u062C\u062F\u064A\u062F!*\n\n' +
+            '\uD83D\uDC64 *\u0627\u0644\u0639\u0645\u064A\u0644:* ' + requestData.userName + '\n' +
+            '\uD83C\uDD94 *ID:* ' + requestData.userId + '\n' +
+            appInfo +
+            '\uD83D\uDCB0 *\u0627\u0644\u0645\u0628\u0644\u063A:* ' + requestData.amount + ' $\n' +
+            '\uD83C\uDFAF *\u0627\u0644\u0648\u062C\u0647\u0629:* ' + destText + '\n' +
+            '\uD83D\uDC8E *\u0627\u0644\u0631\u0635\u064A\u062F:* ' + balance + ' $\n' +
+            '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629:* ' + debt + ' $\n' +
+            '\u23F0 *\u0627\u0644\u0648\u0642\u062A:* ' + requestData.time + '\n\n' +
+            '\uD83D\uDD14 \u064A\u0631\u062C\u0649 \u0645\u0631\u0627\u062C\u0639\u0629 \u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645 \u0644\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0639\u0644\u0649 \u0627\u0644\u0637\u0644\u0628.';
+
         sendTelegramToAllActiveBots(message);
+    }).catch(() => {
+        const appInfo = requestData.appName ? '\uD83C\uDFAE *\u0627\u0644\u0628\u0631\u0646\u0627\u0645\u062C:* ' + requestData.appName + '\n' : '';
+        const destText = requestData.destination === 'self' 
+            ? '\u0644\u0646\u0641\u0633\u0647' 
+            : '\u0644\u0644\u063A\u064A\u0631 (' + requestData.targetId + ')';
+
+        const message = 
+            '\uD83C\uDD95 *\u0637\u0644\u0628 \u0634\u062D\u0646 \u062C\u062F\u064A\u062F!*\n\n' +
+            '\uD83D\uDC64 *\u0627\u0644\u0639\u0645\u064A\u0644:* ' + requestData.userName + '\n' +
+            '\uD83C\uDD94 *ID:* ' + requestData.userId + '\n' +
+            appInfo +
+            '\uD83D\uDCB0 *\u0627\u0644\u0645\u0628\u0644\u063A:* ' + requestData.amount + ' $\n' +
+            '\uD83C\uDFAF *\u0627\u0644\u0648\u062C\u0647\u0629:* ' + destText + '\n' +
+            '\uD83D\uDC8E *\u0627\u0644\u0631\u0635\u064A\u062F:* \u2014\n' +
+            '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629:* \u2014\n' +
+            '\u23F0 *\u0627\u0644\u0648\u0642\u062A:* ' + requestData.time + '\n\n' +
+            '\uD83D\uDD14 \u064A\u0631\u062C\u0649 \u0645\u0631\u0627\u062C\u0639\u0629 \u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645 \u0644\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0639\u0644\u0649 \u0627\u0644\u0637\u0644\u0628.';
+
+        sendTelegramToAllActiveBots(message);
+    });
+}
+
+function notifyRequestApproved(requestData, staffName) {
+    db.ref('user_accounts/' + requestData.userKey).once('value').then(snap => {
+        const userData = snap.val() || {};
+        const balance = (userData.balance || 0).toFixed(2);
+        const debt = (userData.debt || 0).toFixed(2);
+
+        const appInfo = requestData.appName ? '\uD83C\uDFAE *\u0627\u0644\u0628\u0631\u0646\u0627\u0645\u062C:* ' + requestData.appName + '\n' : '';
+        const destText = requestData.destination === 'self' 
+            ? '\u0644\u0646\u0641\u0633\u0647' 
+            : '\u0644\u0644\u063A\u064A\u0631 (' + requestData.targetId + ')';
+
+        const message = 
+            '\u2705 *\u062A\u0645\u062A \u0627\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0639\u0644\u0649 \u0637\u0644\u0628 \u0634\u062D\u0646*\n\n' +
+            '\uD83D\uDC64 *\u0627\u0644\u0639\u0645\u064A\u0644:* ' + requestData.userName + '\n' +
+            '\uD83C\uDD94 *ID:* ' + requestData.userId + '\n' +
+            appInfo +
+            '\uD83D\uDCB0 *\u0627\u0644\u0645\u0628\u0644\u063A:* ' + requestData.amount + ' $\n' +
+            '\uD83C\uDFAF *\u0627\u0644\u0648\u062C\u0647\u0629:* ' + destText + '\n' +
+            '\uD83D\uDC8E *\u0627\u0644\u0631\u0635\u064A\u062F:* ' + balance + ' $\n' +
+            '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629:* ' + debt + ' $\n' +
+            '\uD83D\uDC54 *\u062A\u0645\u062A \u0627\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0628\u0648\u0627\u0633\u0637\u0629:* ' + staffName + '\n' +
+            '\u23F0 *\u0627\u0644\u0648\u0642\u062A:* ' + new Date().toLocaleString('ar-EG');
+
+        sendTelegramToAllActiveBots(message);
+    });
+}
+
+function notifyManualShipment(clientName, clientId, amount, destination, chargedId, staffName, time) {
+    const userAcc = userAccounts.find(u => u.id === clientId);
+    const userKey = userAcc ? userAcc._key : null;
+
+    const sendMsg = (balance, debt) => {
+        const destText = destination === 'self' || destination === '\u0644\u0646\u0641\u0633\u0647' 
+            ? '\u0644\u0646\u0641\u0633\u0647' 
+            : '\u0644\u0644\u063A\u064A\u0631 (' + chargedId + ')';
+
+        const message = 
+            '\u2705 *\u0634\u062D\u0646 \u064A\u062F\u0648\u064A \u062C\u062F\u064A\u062F*\n\n' +
+            '\uD83D\uDC64 *\u0627\u0644\u0639\u0645\u064A\u0644:* ' + clientName + '\n' +
+            '\uD83C\uDD94 *ID:* ' + clientId + '\n' +
+            '\uD83D\uDCB0 *\u0627\u0644\u0645\u0628\u0644\u063A:* ' + amount + ' $\n' +
+            '\uD83C\uDFAF *\u0627\u0644\u0648\u062C\u0647\u0629:* ' + destText + '\n' +
+            '\uD83D\uDC8E *\u0627\u0644\u0631\u0635\u064A\u062F:* ' + balance + ' $\n' +
+            '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629:* ' + debt + ' $\n' +
+            '\uD83D\uDC54 *\u0627\u0644\u0645\u0648\u0638\u0641:* ' + staffName + '\n' +
+            '\u23F0 *\u0627\u0644\u0648\u0642\u062A:* ' + time;
+
+        sendTelegramToAllActiveBots(message);
+    };
+
+    if (userKey) {
+        db.ref('user_accounts/' + userKey).once('value').then(snap => {
+            const data = snap.val() || {};
+            sendMsg((data.balance || 0).toFixed(2), (data.debt || 0).toFixed(2));
+        }).catch(() => sendMsg('\u2014', '\u2014'));
+    } else {
+        sendMsg('\u2014', '\u2014');
+    }
+}
+
+function notifyPartialPayment(clientName, clientId, amount, previousDebt, newDebt, note, adminName, time) {
+    const userAcc = userAccounts.find(u => u.id === clientId);
+    const userKey = userAcc ? userAcc._key : null;
+
+    const sendMsg = (balance) => {
+        const message = 
+            '\uD83D\uDCB5 *\u062F\u0641\u0639 \u062C\u0632\u0626\u064A \u0645\u0633\u062C\u0644*\n\n' +
+            '\uD83D\uDC64 *\u0627\u0644\u0639\u0645\u064A\u0644:* ' + clientName + '\n' +
+            '\uD83C\uDD94 *ID:* ' + clientId + '\n' +
+            '\uD83D\uDCB0 *\u0627\u0644\u0645\u0628\u0644\u063A \u0627\u0644\u0645\u062F\u0641\u0648\u0639:* ' + amount.toFixed(2) + ' $\n' +
+            '\uD83D\uDC8E *\u0627\u0644\u0631\u0635\u064A\u062F:* ' + balance + ' $\n' +
+            '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629 \u0627\u0644\u0633\u0627\u0628\u0642\u0629:* ' + previousDebt.toFixed(2) + ' $\n' +
+            '\uD83D\uDCCA *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629 \u0627\u0644\u0645\u062A\u0628\u0642\u064A\u0629:* ' + newDebt.toFixed(2) + ' $\n' +
+            '\uD83D\uDCDD *\u0645\u0644\u0627\u062D\u0638\u0629:* ' + (note || '\u062F\u0641\u0639 \u062C\u0632\u0626\u064A') + '\n' +
+            '\uD83D\uDC54 *\u0633\u062C\u0644\u0647:* ' + adminName + '\n' +
+            '\u23F0 ' + time;
+
+        sendTelegramToAllActiveBots(message);
+    };
+
+    if (userKey) {
+        db.ref('user_accounts/' + userKey).once('value').then(snap => {
+            const data = snap.val() || {};
+            sendMsg((data.balance || 0).toFixed(2));
+        }).catch(() => sendMsg('\u2014'));
+    } else {
+        sendMsg('\u2014');
+    }
+}
+
+function notifyRequestRejected(requestData, staffName) {
+    db.ref('user_accounts/' + requestData.userKey).once('value').then(snap => {
+        const userData = snap.val() || {};
+        const balance = (userData.balance || 0).toFixed(2);
+        const debt = (userData.debt || 0).toFixed(2);
+
+        const appInfo = requestData.appName ? '\uD83C\uDFAE *\u0627\u0644\u0628\u0631\u0646\u0627\u0645\u062C:* ' + requestData.appName + '\n' : '';
+
+        const message = 
+            '\u274C *\u062A\u0645 \u0631\u0641\u0636 \u0637\u0644\u0628 \u0634\u062D\u0646*\n\n' +
+            '\uD83D\uDC64 *\u0627\u0644\u0639\u0645\u064A\u0644:* ' + requestData.userName + '\n' +
+            '\uD83C\uDD94 *ID:* ' + requestData.userId + '\n' +
+            appInfo +
+            '\uD83D\uDCB0 *\u0627\u0644\u0645\u0628\u0644\u063A:* ' + requestData.amount + ' $\n' +
+            '\uD83D\uDC8E *\u0627\u0644\u0631\u0635\u064A\u062F:* ' + balance + ' $\n' +
+            '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629:* ' + debt + ' $\n' +
+            '\uD83D\uDC54 *\u062A\u0645 \u0627\u0644\u0631\u0641\u0636 \u0628\u0648\u0627\u0633\u0637\u0629:* ' + staffName + '\n' +
+            '\u23F0 *\u0627\u0644\u0648\u0642\u062A:* ' + new Date().toLocaleString('ar-EG');
+
+        sendTelegramToAllActiveBots(message);
+    });
+}
+
+function sendToGoogleSheet(actionType, payload) {
+        if(!globalScriptUrl) {
+            console.error("globalScriptUrl is empty!");
+            return;
+        }
+        console.log("Sending to Google Sheet:", actionType, payload);
+        fetch(globalScriptUrl, { 
+            method: "POST", 
+            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+            body: JSON.stringify({
+                action: actionType,
+                data: payload
+            })
+        })
+        .then(response => {
+            console.log("Response status:", response.status);
+            return response.json();
+        })
+        .then(result => {
+            console.log("Google Sheet result:", result);
+            if(result.status === "success") {
+                showToast("✅ تم التسجيل في Google Sheets!");
+            } else {
+                console.error("Sheet error:", result.message);
+                showToast("❌ خطأ في Sheets: " + result.message);
+            }
+        })
+        .catch(err => {
+            console.error("Fetch error:", err);
+            showToast("❌ خطأ في الاتصال: " + err.message);
+        });
     }
 
-    function notifyRequestApproved(requestData, staffName) {
+    function notifyNewRequest(requestData) {
+    db.ref('user_accounts/' + requestData.userKey).once('value').then(snap => {
+        const userData = snap.val() || {};
+        const balance = (userData.balance || 0).toFixed(2);
+        const debt = (userData.debt || 0).toFixed(2);
+
+        const appInfo = requestData.appName ? '\uD83C\uDFAE *\u0627\u0644\u0628\u0631\u0646\u0627\u0645\u062C:* ' + requestData.appName + '\n' : '';
+        const destText = requestData.destination === 'self' 
+            ? '\u0644\u0646\u0641\u0633\u0647' 
+            : '\u0644\u0644\u063A\u064A\u0631 (' + requestData.targetId + ')';
+
+        const message = 
+            '\uD83C\uDD95 *\u0637\u0644\u0628 \u0634\u062D\u0646 \u062C\u062F\u064A\u062F!*\n\n' +
+            '\uD83D\uDC64 *\u0627\u0644\u0639\u0645\u064A\u0644:* ' + requestData.userName + '\n' +
+            '\uD83C\uDD94 *ID:* ' + requestData.userId + '\n' +
+            appInfo +
+            '\uD83D\uDCB0 *\u0627\u0644\u0645\u0628\u0644\u063A:* ' + requestData.amount + ' $\n' +
+            '\uD83C\uDFAF *\u0627\u0644\u0648\u062C\u0647\u0629:* ' + destText + '\n' +
+            '\uD83D\uDC8E *\u0627\u0644\u0631\u0635\u064A\u062F:* ' + balance + ' $\n' +
+            '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629:* ' + debt + ' $\n' +
+            '\u23F0 *\u0627\u0644\u0648\u0642\u062A:* ' + requestData.time + '\n\n' +
+            '\uD83D\uDD14 \u064A\u0631\u062C\u0649 \u0645\u0631\u0627\u062C\u0639\u0629 \u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645 \u0644\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0639\u0644\u0649 \u0627\u0644\u0637\u0644\u0628.';
+
+        sendTelegramToAllActiveBots(message);
+    }).catch(() => {
+        const appInfo = requestData.appName ? '\uD83C\uDFAE *\u0627\u0644\u0628\u0631\u0646\u0627\u0645\u062C:* ' + requestData.appName + '\n' : '';
+        const destText = requestData.destination === 'self' 
+            ? '\u0644\u0646\u0641\u0633\u0647' 
+            : '\u0644\u0644\u063A\u064A\u0631 (' + requestData.targetId + ')';
+
+        const message = 
+            '\uD83C\uDD95 *\u0637\u0644\u0628 \u0634\u062D\u0646 \u062C\u062F\u064A\u062F!*\n\n' +
+            '\uD83D\uDC64 *\u0627\u0644\u0639\u0645\u064A\u0644:* ' + requestData.userName + '\n' +
+            '\uD83C\uDD94 *ID:* ' + requestData.userId + '\n' +
+            appInfo +
+            '\uD83D\uDCB0 *\u0627\u0644\u0645\u0628\u0644\u063A:* ' + requestData.amount + ' $\n' +
+            '\uD83C\uDFAF *\u0627\u0644\u0648\u062C\u0647\u0629:* ' + destText + '\n' +
+            '\uD83D\uDC8E *\u0627\u0644\u0631\u0635\u064A\u062F:* \u2014\n' +
+            '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629:* \u2014\n' +
+            '\u23F0 *\u0627\u0644\u0648\u0642\u062A:* ' + requestData.time + '\n\n' +
+            '\uD83D\uDD14 \u064A\u0631\u062C\u0649 \u0645\u0631\u0627\u062C\u0639\u0629 \u0644\u0648\u062D\u0629 \u0627\u0644\u062A\u062D\u0643\u0645 \u0644\u0644\u0645\u0648\u0627\u0641\u0642\u0629 \u0639\u0644\u0649 \u0627\u0644\u0637\u0644\u0628.';
+
+        sendTelegramToAllActiveBots(message);
+    });
+}
+
+function notifyRequestApproved(requestData, staffName) {
         const appInfo = requestData.appName ? '🎮 *البرنامج:* ' + requestData.appName + '\n' : '';
         const message = '✅ *تمت الموافقة على طلب شحن*\n\n👤 *العميل:* ' + requestData.userName + '\n' + appInfo + '💰 *المبلغ:* ' + requestData.amount + ' $\n👔 *تمت الموافقة بواسطة:* ' + staffName + '\n⏰ *الوقت:* ' + new Date().toLocaleString('ar-EG');
         sendTelegramToAllActiveBots(message);
@@ -4056,48 +4291,79 @@ function generateTxnCode() {
             let filteredDebt = 0;
             if (hasDateFilter) filteredDebt = filteredLogs.reduce((sum, l) => sum + (parseFloat(l.amount) || 0), 0);
             else filteredDebt = found.debt || 0;
-            let html = '';
-            html += '<h4>📌 بيانات العميل: ' + found.name + '</h4>';
-            html += '<div class="summary-row"><strong>الـ ID:</strong><span>' + found.id + '</span></div>';
-            html += '<div class="summary-row"><strong>الفئة:</strong><span>' + found.type + '</span></div>';
+
+            // Build WhatsApp message
+            const nowStr = new Date().toLocaleString('ar-EG');
+            let waMsg = '*\uD83D\uDCCB \u0641\u062D\u0635 \u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629 - \u0648\u0643\u0627\u0644\u0629 \u0627\u0644\u0645\u0644\u0648\u0643 \uD83D\uDC51*\n\n';
+            waMsg += '\uD83D\uDC64 *\u0627\u0644\u0639\u0645\u064A\u0644:* ' + found.name + '\n';
+            waMsg += '\uD83C\uDD94 *ID:* ' + found.id + '\n';
+            if (found.whatsapp) waMsg += '\uD83D\uDCF1 *\u0648\u0627\u062A\u0633\u0627\u0628:* ' + found.whatsapp + '\n';
             if (userAccLookup) {
-                html += '<div class="summary-row"><strong>💰 الرصيد:</strong><span style="color:var(--success-color);font-weight:700;">' + (userAccLookup.balance || 0).toFixed(2) + ' $</span></div>';
-                html += '<div class="summary-row"><strong>📉 المديونية:</strong><span style="color:var(--danger-color);font-weight:700;">' + (userAccLookup.debt || 0).toFixed(2) + ' $</span></div>';
+                waMsg += '\uD83D\uDC8E *\u0627\u0644\u0631\u0635\u064A\u062F:* ' + (userAccLookup.balance || 0).toFixed(2) + ' $\n';
+                waMsg += '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629 \u0627\u0644\u0643\u0644\u064A\u0629:* ' + (userAccLookup.debt || 0).toFixed(2) + ' $\n';
+            } else {
+                waMsg += '\uD83D\uDCC9 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629 \u0627\u0644\u0643\u0644\u064A\u0629:* ' + (found.debt || 0).toFixed(2) + ' $\n';
+            }
+            waMsg += '\uD83D\uDCCA *\u0625\u062C\u0645\u0627\u0644\u064A \u0627\u0644\u0634\u062D\u0646\u0627\u062A:* ' + (found.totalOrders || 0) + '\n';
+            if (hasDateFilter) {
+                waMsg += '\n\uD83D\uDCC5 *\u0627\u0644\u0641\u062A\u0631\u0629:* ' + (fromDateVal || '\u0627\u0644\u0628\u062F\u0627\u064A\u0629') + ' \u2192 ' + (toDateVal || '\u0627\u0644\u0646\u0647\u0627\u064A\u0629') + '\n';
+                waMsg += '\uD83D\uDCB0 *\u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629 \u0641\u064A \u0627\u0644\u0641\u062A\u0631\u0629:* ' + filteredDebt.toFixed(2) + ' $\n';
+                waMsg += '\uD83D\uDCCA *\u0639\u062F\u062F \u0627\u0644\u0634\u062D\u0646\u0627\u062A \u0641\u064A \u0627\u0644\u0641\u062A\u0631\u0629:* ' + filteredLogs.length + '\n';
+            }
+            waMsg += '\n\u23F0 *\u062A\u0627\u0631\u064A\u062E \u0627\u0644\u0641\u062D\u0635:* ' + nowStr + '\n';
+            waMsg += '\n\uD83D\uDE4F \u0634\u0643\u0631\u0627\u064B \u0644\u062B\u0642\u062A\u0643\u0645 \u0628\u0640 \u0648\u0643\u0627\u0644\u0629 \u0627\u0644\u0645\u0644\u0648\u0643 \uD83D\uDC51';
+            const waPhone = found.whatsapp || (userAccLookup && userAccLookup.whatsapp ? userAccLookup.whatsapp : '');
+            const waLink = waPhone ? 'https://api.whatsapp.com/send?phone=' + waPhone + '&text=' + encodeURIComponent(waMsg) : '';
+
+            let html = '';
+            html += '<h4>\uD83D\uDCCC \u0628\u064A\u0627\u0646\u0627\u062A \u0627\u0644\u0639\u0645\u064A\u0644: ' + found.name + '</h4>';
+            html += '<div class="summary-row"><strong>\u0627\u0644\u0640 ID:</strong><span>' + found.id + '</span></div>';
+            html += '<div class="summary-row"><strong>\u0627\u0644\u0641\u0626\u0629:</strong><span>' + found.type + '</span></div>';
+            if (userAccLookup) {
+                html += '<div class="summary-row"><strong>\uD83D\uDCB0 \u0627\u0644\u0631\u0635\u064A\u062F:</strong><span style="color:var(--success-color);font-weight:700;">' + (userAccLookup.balance || 0).toFixed(2) + ' $</span></div>';
+                html += '<div class="summary-row"><strong>\uD83D\uDCC9 \u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629:</strong><span style="color:var(--danger-color);font-weight:700;">' + (userAccLookup.debt || 0).toFixed(2) + ' $</span></div>';
             }
             if (hasDateFilter) {
-                html += '<div class="summary-row"><strong>📅 الفترة:</strong><span>' + (fromDateVal || 'البداية') + ' &rarr; ' + (toDateVal || 'النهاية') + '</span></div>';
-                html += '<div class="summary-row"><strong>💰 المديونية في الفترة:</strong><span>' + filteredDebt.toFixed(2) + ' $</span></div>';
-                html += '<div class="summary-row"><strong>📊 عدد الشحنات في الفترة:</strong><span>' + filteredLogs.length + '</span></div>';
-                html += '<div class="summary-row"><strong>💰 المديونية الكلية:</strong><span style="color:#b3b3b3;">' + (found.debt || 0) + ' $</span></div>';
+                html += '<div class="summary-row"><strong>\uD83D\uDCC5 \u0627\u0644\u0641\u062A\u0631\u0629:</strong><span>' + (fromDateVal || '\u0627\u0644\u0628\u062F\u0627\u064A\u0629') + ' &rarr; ' + (toDateVal || '\u0627\u0644\u0646\u0647\u0627\u064A\u0629') + '</span></div>';
+                html += '<div class="summary-row"><strong>\uD83D\uDCB0 \u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629 \u0641\u064A \u0627\u0644\u0641\u062A\u0631\u0629:</strong><span>' + filteredDebt.toFixed(2) + ' $</span></div>';
+                html += '<div class="summary-row"><strong>\uD83D\uDCCA \u0639\u062F\u062F \u0627\u0644\u0634\u062D\u0646\u0627\u062A \u0641\u064A \u0627\u0644\u0641\u062A\u0631\u0629:</strong><span>' + filteredLogs.length + '</span></div>';
+                html += '<div class="summary-row"><strong>\uD83D\uDCB0 \u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629 \u0627\u0644\u0643\u0644\u064A\u0629:</strong><span style="color:#b3b3b3;">' + (found.debt || 0).toFixed(2) + ' $</span></div>';
             } else {
-                html += '<div class="summary-row"><strong>💰 المديونية الكلية:</strong><span>' + (found.debt || 0) + ' $</span></div>';
-                html += '<div class="summary-row"><strong>📊 إجمالي الشحنات:</strong><span>' + (found.totalOrders || 0) + '</span></div>';
+                html += '<div class="summary-row"><strong>\uD83D\uDCB0 \u0627\u0644\u0645\u062F\u064A\u0648\u0646\u064A\u0629 \u0627\u0644\u0643\u0644\u064A\u0629:</strong><span>' + (found.debt || 0).toFixed(2) + ' $</span></div>';
+                html += '<div class="summary-row"><strong>\uD83D\uDCCA \u0625\u062C\u0645\u0627\u0644\u064A \u0627\u0644\u0634\u062D\u0646\u0627\u062A:</strong><span>' + (found.totalOrders || 0) + '</span></div>';
+            }
+            // WhatsApp share button
+            if (waLink) {
+                html += '<div style="text-align:center; margin:15px 0;">';
+                html += '<a href="' + waLink + '" target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:12px 20px; background:linear-gradient(135deg,#25D366,#128C7E); color:#fff; border-radius:12px; text-decoration:none; font-weight:700; font-size:14px; box-shadow:0 4px 15px rgba(37,211,102,0.3); transition:all 0.3s ease;">';
+                html += '\uD83D\uDCF1 \u0645\u0634\u0627\u0631\u0643\u0629 \u0627\u0644\u0648\u0627\u062A\u0633\u0627\u0628 \u0645\u0639 \u0627\u0644\u0639\u0645\u064A\u0644';
+                html += '</a></div>';
             }
             if (filteredLogs.length > 0) {
-                html += '<h4 style="margin-top:15px;">📝 تفاصيل الشحنات:</h4>';
+                html += '<h4 style="margin-top:15px;">\uD83D\uDCDD \u062A\u0641\u0627\u0635\u064A\u0644 \u0627\u0644\u0634\u062D\u0646\u0627\u062A:</h4>';
                 html += '<div style="max-height:250px; overflow-y:auto;">';
                 html += '<table class="log-table" id="logsTable">';
-                html += '<thead><tr><th>#</th><th>التاريخ</th><th>المبلغ</th><th>الوجهة</th><th>الموظف</th><th>إجراء</th></tr></thead>';
+                html += '<thead><tr><th>#</th><th>\u0627\u0644\u062A\u0627\u0631\u064A\u062E</th><th>\u0627\u0644\u0645\u0628\u0644\u063A</th><th>\u0627\u0644\u0648\u062C\u0647\u0629</th><th>\u0627\u0644\u0645\u0648\u0638\u0641</th><th>\u0625\u062C\u0631\u0627\u0621</th></tr></thead>';
                 html += '<tbody>';
                 filteredLogs.forEach((log, index) => {
                     const logKey = log._key || '';
                     const amount = parseFloat(log.amount) || 0;
-                    html += '<tr><td>' + (index + 1) + '</td><td>' + log.time + '</td><td style="color:var(--primary-color); font-weight:bold;">' + log.amount + ' $</td><td>' + (log.destination === 'لنفسه' ? 'لنفسه' : (log.chargedId || 'للغير')) + '</td><td>' + log.staff + '</td><td>';
-                    if (logKey) html += '<button class="delete-log-btn" onclick="openDeleteConfirm(\'' + logKey + '\',' + amount + ',\'' + searchId + '\')" title="حذف الشحنة">🗑️ حذف</button>';
+                    html += '<tr><td>' + (index + 1) + '</td><td>' + log.time + '</td><td style="color:var(--primary-color); font-weight:bold;">' + log.amount + ' $</td><td>' + (log.destination === '\u0644\u0646\u0641\u0633\u0647' ? '\u0644\u0646\u0641\u0633\u0647' : (log.chargedId || '\u0644\u0644\u063A\u064A\u0631')) + '</td><td>' + log.staff + '</td><td>';
+                    if (logKey) html += '<button class="delete-log-btn" onclick="openDeleteConfirm(\'' + logKey + '\',' + amount + ',\'' + searchId + '\')" title="\u062D\u0630\u0641 \u0627\u0644\u0634\u062D\u0646\u0629">\uD83D\uDDD1\uFE0F \u062D\u0630\u0641</button>';
                     html += '</td></tr>';
                 });
                 html += '</tbody></table></div>';
-            } else if (hasDateFilter) html += '<div class="no-logs">لا توجد شحنات في الفترة المحددة</div>';
+            } else if (hasDateFilter) html += '<div class="no-logs">\u0644\u0627 \u062A\u0648\u062C\u062F \u0634\u062D\u0646\u0627\u062A \u0641\u064A \u0627\u0644\u0641\u062A\u0631\u0629 \u0627\u0644\u0645\u062D\u062F\u062F\u0629</div>';
             if (hasDateFilter) {
                 html += '<div class="download-section">';
                 html += '<button class="download-btn" onclick="downloadPeriodReport(\'' + found.name + '\',\'' + found.id + '\',\'' + (fromDateVal || '') + '\',\'' + (toDateVal || '') + '\',' + filteredDebt.toFixed(2) + ',' + filteredLogs.length + ')">';
-                html += '📥 تحميل تقرير الفترة (PDF)'; html += '</button></div>';
+                html += '\uD83D\uDCE5 \u062A\u062D\u0645\u064A\u0644 \u062A\u0642\u0631\u064A\u0631 \u0627\u0644\u0641\u062A\u0631\u0629 (PDF)'; html += '</button></div>';
             }
             resultBox.innerHTML = html;
         });
     }
 
-    function parseLogDate(dateStr) {
+function parseLogDate(dateStr) {
         if (!dateStr) return null;
         try {
             let d = new Date(dateStr);
@@ -4306,8 +4572,7 @@ function generateTxnCode() {
             }
         }).then(() => {
             sendToGoogleSheet("appendRow", { staff: currentLoggedStaff, clientName: clientName, clientId: staticId, destination: chargeDestination === 'self' ? 'لنفسه' : 'للغير', chargedId: finalChargedId, amount: amount, time: formattedTime });
-            const msg = '✅ *شحن جديد*\n\n👤 *العميل:* ' + clientName + '\n🆔 *ID:* ' + staticId + '\n💰 *المبلغ:* ' + amount + ' $\n🎯 *الوجهة:* ' + (chargeDestination === 'self' ? 'لنفسه' : 'للغير') + '\n👔 *الموظف:* ' + currentLoggedStaff + '\n⏰ ' + formattedTime;
-            sendTelegramToAllActiveBots(msg);
+            notifyManualShipment(clientName, staticId, amount, chargeDestination === 'self' ? 'لنفسه' : 'للغير', finalChargedId, currentLoggedStaff, formattedTime);
             alert('تم الشحن وتوثيق الحركة في ملف إكسل العميل المخصص!');
             // إرسال إشعار واتساب للعميل بالمديونية الصحيحة بعد الشحن
             const clientForWa = clientsDatabase.find(c => c.id === staticId);
