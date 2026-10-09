@@ -1534,6 +1534,10 @@
                 <label style="text-align: right;">الباسورد</label>
                 <input type="password" id="loginPass" required placeholder="الباسورد" style="text-align: right;">
             </div>
+            <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                <input type="checkbox" id="loginRememberMe" style="width:18px; height:18px; accent-color:var(--primary-color); cursor:pointer;">
+                <label for="loginRememberMe" style="margin:0; cursor:pointer; color:var(--text-secondary); font-size:13px;">تذكرني 🔐</label>
+            </div>
             <button type="submit" style="background: linear-gradient(135deg, #ff1a1a, #cc0000) !important;">تسجيل الدخول</button>
         </form>
 
@@ -1564,6 +1568,10 @@
                 <label style="text-align: right; font-size: 14px;">الباسورد</label>
                 <input type="password" id="staffLoginPass" required placeholder="الباسورد" style="text-align: right;">
             </div>
+            <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                <input type="checkbox" id="staffLoginRememberMe" style="width:18px; height:18px; accent-color:var(--primary-color); cursor:pointer;">
+                <label for="staffLoginRememberMe" style="margin:0; cursor:pointer; color:var(--text-secondary); font-size:13px;">تذكرني 🔐</label>
+            </div>
             <button type="submit" style="font-size: 16px; padding: 14px;">تسجيل الدخول</button>
             <button type="button" class="btn-secondary" onclick="showUserLogin()" style="margin-top: 10px;">رجوع</button>
         </form>
@@ -1584,6 +1592,10 @@
             <div class="form-group">
                 <label style="text-align: right; font-size: 14px;">الباسورد السري</label>
                 <input type="password" id="adminLoginPass" required placeholder="أدخل الباسورد السري" style="text-align: right;">
+            </div>
+            <div class="form-group" style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                <input type="checkbox" id="adminLoginRememberMe" style="width:18px; height:18px; accent-color:var(--primary-color); cursor:pointer;">
+                <label for="adminLoginRememberMe" style="margin:0; cursor:pointer; color:var(--text-secondary); font-size:13px;">تذكرني 🔐</label>
             </div>
             <button type="submit" style="font-size: 16px; padding: 14px;">دخول لوحة المدير</button>
             <button type="button" class="btn-secondary" onclick="showUserLogin()" style="margin-top: 10px;">رجوع</button>
@@ -2025,6 +2037,7 @@
         <button type="button" class="btn-secondary" onclick="backToLoginOrDash()" style="margin-top: 25px;">رجوع</button></div>
 
         <button type="button" class="btn-secondary" onclick="backToLoginOrDash()" style="margin-top: 25px;">رجوع</button>
+        <button type="button" class="btn-danger" onclick="logoutAdmin()" style="margin-top: 10px; width:auto; padding:10px 20px;">🚪 تسجيل خروج</button>
     </div>
 
     <!-- ADD CLIENT PAGE -->
@@ -3179,6 +3192,7 @@ function generateTxnCode() {
 
     function logoutUser() {
         currentLoggedUser = null; selectedApp = null;
+        localStorage.removeItem('ali_recharge_remember');
         document.getElementById('userPortalPage').classList.remove('active');
         document.getElementById('loginPage').classList.add('active');
         document.getElementById('notifBell').style.display = 'none';
@@ -3236,15 +3250,117 @@ function generateTxnCode() {
         }
     }
 
+    // ==================== SETUP LISTENER STUB ====================
+    function setupUserRequestListener() {
+        // Stub: sets up real-time listener for user requests if needed
+        // Currently handled by Firebase onValue listeners
+    }
+
+    // ==================== AUTO LOGIN (REMEMBER ME) ====================
+    function autoLogin() {
+        const saved = localStorage.getItem('ali_recharge_remember');
+        if (!saved) return;
+        try {
+            const data = JSON.parse(saved);
+            if (data.type === 'user') {
+                db.ref('user_accounts').once('value').then(snapshot => {
+                    let match = null;
+                    snapshot.forEach(child => {
+                        const u = child.val();
+                        if (u.name === data.name && u.password === data.password) {
+                            match = u; match._key = child.key;
+                        }
+                    });
+                    if (match) {
+                        currentLoggedUser = match;
+                        document.getElementById('loginPage').classList.remove('active');
+                        document.getElementById('userPortalPage').classList.add('active');
+                        updateUserPortalUI();
+                        setupUserRequestListener();
+                        showToast('👋 مرحباً بعودتك، ' + match.name + '!');
+                    } else {
+                        localStorage.removeItem('ali_recharge_remember');
+                    }
+                }).catch(() => { localStorage.removeItem('ali_recharge_remember'); });
+            } else if (data.type === 'staff') {
+                db.ref('staff').once('value').then(snapshot => {
+                    let match = null;
+                    snapshot.forEach(child => {
+                        const s = child.val();
+                        if (s.username === data.username && s.password === data.password) {
+                            match = s;
+                        }
+                    });
+                    if (match) {
+                        // FIX: قراءة الرصيد من Firebase مباشرة لتجنب سباق التحميل مع الـ listener
+                        return db.ref('shared_staff_balance').once('value').then(bSnap => {
+                            const bal = bSnap.val() || 0;
+                            if (bal <= 0) {
+                                // FIX: متمسحش بيانات "تذكرني" - الدخول التلقائي هيشتغل تاني أول ما المدير يضيف رصيد
+                                showToast('⚠️ الرصيد المشترك صفر.');
+                                return;
+                            }
+                            currentLoggedStaff = match.username;
+                            document.getElementById('loginPage').classList.remove('active');
+                            document.getElementById('dashboardPage').classList.add('active');
+                            document.getElementById('staffBadge').innerHTML = 'الموظف المسؤول: <strong>' + currentLoggedStaff + '</strong>';
+                            document.getElementById('notifBell').style.display = 'flex';
+                            updateNotificationBadge();
+                            loadClientsDropdown();
+                            updateStaffBalanceUI();
+                            showToast('👋 مرحباً بعودتك، ' + match.username + '!');
+                        });
+                    } else {
+                        localStorage.removeItem('ali_recharge_remember');
+                    }
+                // FIX: مشكلة شبكة مؤقتة متمسحش بيانات التذكر
+                }).catch((err) => { console.warn('Auto-login error:', err); });
+            } else if (data.type === 'admin') {
+                if (data.password === "1987") {
+                    document.getElementById('loginPage').classList.remove('active');
+                    document.getElementById('adminPanelPage').classList.add('active');
+                    loadStaffUsageReport();
+                    loadAllPaymentsReport();
+                    showToast('👋 مرحباً بعودتك، المدير!');
+                } else {
+                    localStorage.removeItem('ali_recharge_remember');
+                }
+            }
+        } catch(e) {
+            console.error('AutoLogin error:', e);
+            localStorage.removeItem('ali_recharge_remember');
+        }
+    }
+
+    function attemptAutoLogin() {
+        let saved = null;
+        try { saved = localStorage.getItem('ali_recharge_remember'); } catch(e) { return; }
+        if (!saved) return;
+        try {
+            const data = JSON.parse(saved);
+            if (data.type === 'user' || data.type === 'staff') {
+                setTimeout(autoLogin, 400);
+            } else {
+                autoLogin();
+            }
+        } catch(e) {
+            localStorage.removeItem('ali_recharge_remember');
+        }
+    }
+
     // ==================== LOGIN ====================
     function handleLogin(event) {
         event.preventDefault();
         const user = document.getElementById('loginUser').value.trim();
         const pass = document.getElementById('loginPass').value.trim();
+        const rememberMe = document.getElementById('loginRememberMe')?.checked;
         document.getElementById('loginBlockedMsg').classList.remove('active');
         const match = userAccounts.find(u => u.name === user && u.password === pass);
         if(match) {
             currentLoggedUser = match;
+            if (rememberMe) {
+                localStorage.setItem('ali_recharge_remember', JSON.stringify({type:'user', name:user, password:pass}));
+            }
             document.getElementById('loginPage').classList.remove('active');
             document.getElementById('userPortalPage').classList.add('active');
             updateUserPortalUI();
@@ -3256,6 +3372,7 @@ function generateTxnCode() {
         event.preventDefault();
         const user = document.getElementById('staffLoginUser').value.trim();
         const pass = document.getElementById('staffLoginPass').value.trim();
+        const rememberMe = document.getElementById('staffLoginRememberMe')?.checked;
         document.getElementById('staffLoginBlockedMsg').classList.remove('active');
         const match = staffAccounts.find(s => s.username === user && s.password === pass);
         if (match) {
@@ -3264,6 +3381,9 @@ function generateTxnCode() {
                 return;
             }
             currentLoggedStaff = match.username;
+            if (rememberMe) {
+                localStorage.setItem('ali_recharge_remember', JSON.stringify({type:'staff', username:user, password:pass}));
+            }
             document.getElementById('staffLoginPage').classList.remove('active');
             document.getElementById('dashboardPage').classList.add('active');
             document.getElementById('staffBadge').innerHTML = 'الموظف المسؤول: <strong>' + currentLoggedStaff + '</strong>';
@@ -3277,7 +3397,11 @@ function generateTxnCode() {
     function handleAdminLogin(event) {
         event.preventDefault();
         const pass = document.getElementById('adminLoginPass').value.trim();
+        const rememberMe = document.getElementById('adminLoginRememberMe')?.checked;
         if (pass === "1987") {
+            if (rememberMe) {
+                localStorage.setItem('ali_recharge_remember', JSON.stringify({type:'admin', password:pass}));
+            }
             document.getElementById('adminLoginPage').classList.remove('active');
             document.getElementById('adminPanelPage').classList.add('active');
             loadStaffUsageReport();
@@ -4611,10 +4735,17 @@ function parseLogDate(dateStr) {
 
     function logoutStaff() {
         currentLoggedStaff = null;
+        localStorage.removeItem('ali_recharge_remember');
         document.getElementById('dashboardPage').classList.remove('active');
         document.getElementById('loginPage').classList.add('active');
         document.getElementById('notifBell').style.display = 'none';
         document.getElementById('notificationsPanel').classList.remove('active');
+    }
+
+    function logoutAdmin() {
+        localStorage.removeItem('ali_recharge_remember');
+        document.getElementById('adminPanelPage').classList.remove('active');
+        document.getElementById('loginPage').classList.add('active');
     }
 
     // ======= Delete Shipment =======
@@ -4694,6 +4825,7 @@ function parseLogDate(dateStr) {
 
     document.addEventListener('DOMContentLoaded', function() {
         initTheme();
+        attemptAutoLogin();
         const overlay = document.getElementById('deleteConfirmOverlay');
         if (overlay) overlay.addEventListener('click', function(e) { if (e.target === this) cancelDelete(); });
         const balanceOverlay = document.getElementById('balanceModalOverlay');
