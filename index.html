@@ -2190,6 +2190,11 @@
                 <input type="text" id="newClientWhatsapp" placeholder="مثال: 201200087007">
                 <p style="color: var(--text-secondary); font-size: 11px; margin-top: 4px;">💡 اكتب الرقم بدون + أو مسافات. مثال: 201200087007</p>
             </div>
+            <div class="form-group">
+                <label>🔑 الباسورد (لدخول بوابة المستخدم)</label>
+                <input type="text" id="newClientPassword" required placeholder="باسورد حساب المستخدم">
+                <p style="color: var(--text-secondary); font-size: 11px; margin-top: 4px;">💡 بيتعمل بحساب مستخدم تلقائياً بالـ ID والباسورد ده — العميل يقدر يدخل البوابة على طول</p>
+            </div>
                 <button type="submit" style="background: linear-gradient(135deg, var(--success-color), #00994d) !important; color: #fff;">اعتماد العميل</button>
                 <button type="button" class="btn-secondary" onclick="backToDashboard()">إلغاء</button>
             </form>
@@ -4893,12 +4898,18 @@ function parseLogDate(dateStr) {
         const name = document.getElementById('newClientName').value.trim();
         const id = document.getElementById('newClientId').value.trim();
         const whatsapp = document.getElementById('newClientWhatsapp').value.trim();
+        const password = document.getElementById('newClientPassword').value.trim();
+        if (!password) { alert("❌ يرجى إدخال الباسورد!"); return; }
         const isExists = clientsDatabase.some(c => c.id === id);
         if (isExists) { alert("خطأ: هذا الـ ID مسجل بالفعل في المنظومة، لا يمكن تكرار نفس الـ ID!"); return; }
+        const accExists = userAccounts.some(u => u.id === id);
+        if (accExists) { alert("❌ خطأ: يوجد حساب مستخدم بهذا الـ ID بالفعل!"); return; }
         const clientPayload = { type: currentAddingType, name: name, id: id, whatsapp: whatsapp, debt: 0, totalOrders: 0 };
         db.ref('clients/' + id).set(clientPayload);
+        const userPayload = { name: name, id: id, password: password, whatsapp: whatsapp, balance: 0, debt: 0, createdAt: new Date().toLocaleDateString('en-US') + ', ' + new Date().toLocaleTimeString('en-US') };
+        db.ref('user_accounts').push().set(userPayload);
         sendToGoogleSheet("createTab", clientPayload);
-        alert('تم الحفظ وإصدار أمر إنشاء ورقة عمل بالإكسل باسم: ' + name);
+        alert('تم الحفظ وإصدار أمر إنشاء ورقة عمل بالإكسل باسم: ' + name + '\n\n✅ تم إنشاء حساب المستخدم تلقائياً!\n👤 الاسم: ' + name + '\n🆔 ID: ' + id + '\n🔑 الباسورد: ' + password + '\n\nالعميل يقدر يدخل بوابة المستخدم على طول 🚀');
         document.getElementById('addClientForm').reset();
         backToDashboard();
     }
